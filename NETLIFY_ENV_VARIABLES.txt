@@ -1,0 +1,16 @@
+# Copy and paste these environment variables to your Netlify project settings
+# Go to: Site Settings > Environment Variables
+
+# Firebase Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyDs5VLj9osbV-aDUifQfHM7B0XLoqAMQ0g
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=newslinemedia-9ff5f.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_DATABASE_URL=https://newslinemedia-9ff5f-default-rtdb.firebaseio.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=newslinemedia-9ff5f
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=newslinemedia-9ff5f.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=746775523292
+NEXT_PUBLIC_FIREBASE_APP_ID=1:746775523292:web:104ea2b7cf7cd90dbee919
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-7PL69W9F5S
+
+# Admin Authentication
+NEXT_PUBLIC_ADMIN_USERNAME=admin
+NEXT_PUBLIC_ADMIN_PASSWORD=newsline1234
