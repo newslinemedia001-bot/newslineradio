@@ -94,17 +94,20 @@ export default function NewslineRadio() {
         }
         setUsername(storedUsername)
 
-        const sessionKey = `newsline_session_${Date.now()}`
+        const sessionKey = `newsline_session_${storedUserId}_${Date.now()}`
         const existingSession = sessionStorage.getItem("newsline_active_session")
+        const lastSessionUser = localStorage.getItem("newsline_last_session_user")
 
-        if (!existingSession) {
+        // Only track as new listener if it's a genuinely new session or different user
+        if (!existingSession || lastSessionUser !== storedUserId) {
           console.log("[v0] New session detected, tracking listener")
           sessionStorage.setItem("newsline_active_session", sessionKey)
+          localStorage.setItem("newsline_last_session_user", storedUserId)
           await trackListener(storedUserId)
         } else {
-          // Refresh existing session
-          console.log("[v0] Existing session found, refreshing listener count")
-          await trackListener(storedUserId)
+          console.log("[v0] Existing session found, not incrementing listener count")
+          // Just refresh the session key without incrementing
+          sessionStorage.setItem("newsline_active_session", sessionKey)
         }
 
         const [statsData, scheduleData, hostsData, newsData, messagesData] = await Promise.all([
@@ -139,31 +142,41 @@ export default function NewslineRadio() {
 
     const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
       console.log("[v0] User leaving, decrementing listener count")
-      sessionStorage.removeItem("newsline_active_session")
-      try {
-        // Use sendBeacon for more reliable cleanup
-        if (navigator.sendBeacon && userId) {
-          navigator.sendBeacon("/api/decrement-listener", JSON.stringify({ userId }))
-        } else if (userId) {
-          await decrementListener(userId)
+      const activeSession = sessionStorage.getItem("newsline_active_session")
+      if (activeSession) {
+        sessionStorage.removeItem("newsline_active_session")
+        localStorage.removeItem("newsline_last_session_user")
+        try {
+          // Use sendBeacon for more reliable cleanup
+          if (navigator.sendBeacon && userId) {
+            navigator.sendBeacon("/api/decrement-listener", JSON.stringify({ userId }))
+          } else if (userId) {
+            await decrementListener(userId)
+          }
+        } catch (error) {
+          console.error("Error decrementing listener:", error)
         }
-      } catch (error) {
-        console.error("Error decrementing listener:", error)
       }
     }
 
     const handleVisibilityChange = async () => {
-      if (document.hidden) {
+      const activeSession = sessionStorage.getItem("newsline_active_session")
+      if (document.hidden && activeSession) {
         console.log("[v0] Page hidden, decrementing listener count")
+        sessionStorage.removeItem("newsline_active_session")
+        localStorage.removeItem("newsline_last_session_user")
         try {
           if (userId) await decrementListener(userId)
         } catch (error) {
           console.error("Error decrementing listener:", error)
         }
-      } else {
+      } else if (!document.hidden && !activeSession && userId) {
         console.log("[v0] Page visible, tracking listener")
+        const newSessionKey = `newsline_session_${userId}_${Date.now()}`
+        sessionStorage.setItem("newsline_active_session", newSessionKey)
+        localStorage.setItem("newsline_last_session_user", userId)
         try {
-          if (userId) await trackListener(userId)
+          await trackListener(userId)
         } catch (error) {
           console.error("Error tracking listener:", error)
         }
@@ -176,9 +189,13 @@ export default function NewslineRadio() {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload)
       document.removeEventListener("visibilitychange", handleVisibilityChange)
-      sessionStorage.removeItem("newsline_active_session")
-      if (userId) {
-        decrementListener(userId).catch(console.error)
+      const activeSession = sessionStorage.getItem("newsline_active_session")
+      if (activeSession) {
+        sessionStorage.removeItem("newsline_active_session")
+        localStorage.removeItem("newsline_last_session_user")
+        if (userId) {
+          decrementListener(userId).catch(console.error)
+        }
       }
     }
   }, [userId])
