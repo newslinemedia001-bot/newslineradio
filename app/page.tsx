@@ -94,11 +94,16 @@ export default function NewslineRadio() {
         }
         setUsername(storedUsername)
 
-        const sessionId = sessionStorage.getItem("newsline_session_id")
-        if (!sessionId) {
+        const sessionKey = `newsline_session_${Date.now()}`
+        const existingSession = sessionStorage.getItem("newsline_active_session")
+
+        if (!existingSession) {
           console.log("[v0] New session detected, tracking listener")
-          const newSessionId = generateUserId()
-          sessionStorage.setItem("newsline_session_id", newSessionId)
+          sessionStorage.setItem("newsline_active_session", sessionKey)
+          await trackListener(storedUserId)
+        } else {
+          // Refresh existing session
+          console.log("[v0] Existing session found, refreshing listener count")
           await trackListener(storedUserId)
         }
 
@@ -132,10 +137,16 @@ export default function NewslineRadio() {
 
     initializeUser()
 
-    const handleBeforeUnload = async () => {
+    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
       console.log("[v0] User leaving, decrementing listener count")
+      sessionStorage.removeItem("newsline_active_session")
       try {
-        await decrementListener(userId)
+        // Use sendBeacon for more reliable cleanup
+        if (navigator.sendBeacon && userId) {
+          navigator.sendBeacon("/api/decrement-listener", JSON.stringify({ userId }))
+        } else if (userId) {
+          await decrementListener(userId)
+        }
       } catch (error) {
         console.error("Error decrementing listener:", error)
       }
@@ -145,14 +156,14 @@ export default function NewslineRadio() {
       if (document.hidden) {
         console.log("[v0] Page hidden, decrementing listener count")
         try {
-          await decrementListener(userId)
+          if (userId) await decrementListener(userId)
         } catch (error) {
           console.error("Error decrementing listener:", error)
         }
       } else {
         console.log("[v0] Page visible, tracking listener")
         try {
-          await trackListener(userId)
+          if (userId) await trackListener(userId)
         } catch (error) {
           console.error("Error tracking listener:", error)
         }
@@ -165,6 +176,7 @@ export default function NewslineRadio() {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload)
       document.removeEventListener("visibilitychange", handleVisibilityChange)
+      sessionStorage.removeItem("newsline_active_session")
       if (userId) {
         decrementListener(userId).catch(console.error)
       }
@@ -498,13 +510,18 @@ export default function NewslineRadio() {
                     </div>
 
                     <div className="space-y-4">
-                      <div className="relative overflow-hidden bg-gray-100 p-4 border-2 border-gray-200">
+                      <div className="relative bg-gray-900 rounded-lg p-4 shadow-lg border border-gray-300">
+                        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg opacity-95"></div>
                         <iframe
                           src="https://a12.asurahosting.com/public/newsline/embed?theme=dark"
                           frameBorder="0"
                           allowTransparency={true}
-                          className="w-full min-h-[180px] border-0 bg-transparent relative z-10"
+                          className="w-full min-h-[180px] border-0 relative z-10 bg-transparent"
                           title="Newsline Radio Player"
+                          style={{
+                            filter: "contrast(1.2) brightness(1.1)",
+                            background: "rgba(0,0,0,0.8)",
+                          }}
                         />
                       </div>
 
