@@ -14,7 +14,6 @@ import {
   TrendingUp,
   Star,
   Send,
-  Phone,
   Mail,
   Instagram,
   Twitter,
@@ -23,7 +22,6 @@ import {
   Headphones,
   Zap,
   Award,
-  Globe,
   Rows as News,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -511,7 +509,7 @@ export default function NewslineRadio() {
                       </div>
 
                       <div className="flex items-center justify-center space-x-4 text-sm">
-                        <div className="flex items-center space-x-2 text-gray-700">
+                        <div className="flex items-center space-x-2 text-black">
                           <Zap className="w-4 h-4" />
                           <span>High Quality Stream</span>
                         </div>
@@ -557,13 +555,13 @@ export default function NewslineRadio() {
                 <Card className="bg-white border-2 border-gray-200 shadow-lg">
                   <CardContent className="p-4 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Peak Listeners Today</span>
+                      <span className="text-sm text-black font-medium">Peak Listeners Today</span>
                       <span className="text-red-600 font-bold">
                         {isLoading ? "..." : peakListeners.toLocaleString()}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Show Rating</span>
+                      <span className="text-sm text-black font-medium">Show Rating</span>
                       <div className="flex items-center space-x-1">
                         {[...Array(5)].map((_, i) => (
                           <Star key={i} className="w-3 h-3 fill-red-600 text-red-600" />
@@ -572,7 +570,7 @@ export default function NewslineRadio() {
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">Total Likes</span>
+                      <span className="text-sm text-black font-medium">Total Likes</span>
                       <span className="text-red-600 font-bold">{isLoading ? "..." : likes.toLocaleString()}</span>
                     </div>
                   </CardContent>
@@ -806,42 +804,45 @@ export default function NewslineRadio() {
           </section>
 
           <section>
-            <div className="text-center space-y-2 mb-8">
-              <h2 className="text-4xl font-bold mb-8 flex items-center space-x-2">
-                <Users className="w-8 h-8 text-blue-400" />
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold mb-8 flex items-center justify-center space-x-2 text-black">
+                <Users className="w-8 h-8 text-red-600" />
                 <span>Community</span>
               </h2>
-              <p className="text-gray-400">Connect with fellow listeners and stay in touch</p>
+              <p className="text-gray-700 text-lg">Connect with fellow listeners and stay in touch</p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              <Card className="backdrop-blur-lg bg-white/5 border-red-500/20">
+              <Card className="bg-white border-2 border-gray-200 shadow-lg">
                 <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <MessageCircle className="w-5 h-5 text-blue-400" />
+                  <CardTitle className="flex items-center space-x-2 text-black">
+                    <MessageCircle className="w-5 h-5 text-red-600" />
                     <span>Live Chat</span>
                     <Badge className="bg-red-600 text-white">{listeners} online</Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div ref={chatContainerRef} className="h-64 overflow-y-auto space-y-3 bg-black/20 rounded-lg p-4">
+                  <div
+                    ref={chatContainerRef}
+                    className="h-64 overflow-y-auto space-y-3 bg-gray-50 rounded-lg p-4 border border-gray-200"
+                  >
                     {chatMessages.length === 0 ? (
-                      <div className="text-center text-gray-400 py-8">
-                        <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <div className="text-center text-gray-600 py-8">
+                        <MessageCircle className="w-8 h-8 mx-auto mb-2 text-gray-400" />
                         <p>No messages yet. Be the first to say hello!</p>
                       </div>
                     ) : (
                       chatMessages.map((msg, index) => (
                         <div key={msg.id || index} className="flex items-start space-x-2 animate-fade-in-up">
-                          <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-xs font-bold">
+                          <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-xs font-bold text-white">
                             {msg.username[0]?.toUpperCase()}
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center space-x-2">
-                              <span className="text-red-400 text-sm font-semibold">{msg.username}</span>
+                              <span className="text-red-600 text-sm font-semibold">{msg.username}</span>
                               <span className="text-xs text-gray-500">{msg.timeAgo}</span>
                             </div>
-                            <p className="text-sm">{msg.message}</p>
+                            <p className="text-sm text-black">{msg.message}</p>
                           </div>
                         </div>
                       ))
@@ -853,7 +854,7 @@ export default function NewslineRadio() {
                       value={chatMessage}
                       onChange={(e) => setChatMessage(e.target.value)}
                       onKeyPress={(e) => handleKeyPress(e, "chat")}
-                      className="bg-black/20 border-red-500/30"
+                      className="bg-white border-gray-300"
                       disabled={chatLoading}
                     />
                     <Button
@@ -868,82 +869,57 @@ export default function NewslineRadio() {
                       )}
                     </Button>
                   </div>
-                  <p className="text-xs text-gray-500">
-                    Chatting as: <span className="text-red-400">{username}</span>
+                  <p className="text-xs text-gray-600">
+                    Chatting as: <span className="text-red-600 font-medium">{username}</span>
                   </p>
                 </CardContent>
               </Card>
 
-              <div className="space-y-6">
-                <Card className="backdrop-blur-lg bg-white/5 border-red-500/20">
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Mail className="w-5 h-5 text-blue-400" />
-                      <span>Stay Connected</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {contactSuccess && (
-                      <div className="bg-green-600/20 border border-green-500/30 rounded-lg p-3 text-green-300 text-sm">
-                        ✓ Message sent successfully! We'll get back to you soon.
-                      </div>
-                    )}
-                    <Input
-                      type="email"
-                      placeholder="Your email address"
-                      value={contactEmail}
-                      onChange={(e) => setContactEmail(e.target.value)}
-                      className="bg-black/20 border-red-500/30"
-                      disabled={contactLoading}
-                    />
-                    <Textarea
-                      placeholder="Your message or song request..."
-                      value={contactMessage}
-                      onChange={(e) => setContactMessage(e.target.value)}
-                      onKeyPress={(e) => handleKeyPress(e, "contact")}
-                      className="bg-black/20 border-red-500/30"
-                      disabled={contactLoading}
-                    />
-                    <Button
-                      onClick={handleSendContact}
-                      disabled={contactLoading || !contactEmail.trim() || !contactMessage.trim()}
-                      className="w-full bg-red-600 hover:bg-red-700"
-                    >
-                      {contactLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                          Sending...
-                        </>
-                      ) : (
-                        "Send Message"
-                      )}
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="backdrop-blur-lg bg-white/5 border-blue-500/20">
-                  <CardContent className="p-6 space-y-4">
-                    <h3 className="text-lg font-semibold flex items-center space-x-2">
-                      <Phone className="w-5 h-5 text-blue-400" />
-                      <span>Contact Info</span>
-                    </h3>
-                    <div className="space-y-2 text-sm">
-                      <p className="flex items-center space-x-2">
-                        <Phone className="w-4 h-4 text-blue-400" />
-                        <span>+1 (555) 123-RADIO</span>
-                      </p>
-                      <p className="flex items-center space-x-2">
-                        <Mail className="w-4 h-4 text-blue-400" />
-                        <span>hello@newlineradio.com</span>
-                      </p>
-                      <p className="flex items-center space-x-2">
-                        <Globe className="w-4 h-4 text-blue-400" />
-                        <span>www.newlineradio.com</span>
-                      </p>
+              <Card className="bg-white border-2 border-gray-200 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2 text-black">
+                    <Mail className="w-5 h-5 text-red-600" />
+                    <span>Stay Connected</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {contactSuccess && (
+                    <div className="bg-green-100 border border-green-300 rounded-lg p-3 text-green-700 text-sm">
+                      ✓ Message sent successfully! We'll get back to you soon.
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  )}
+                  <Input
+                    type="email"
+                    placeholder="Your email address"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    className="bg-white border-gray-300"
+                    disabled={contactLoading}
+                  />
+                  <Textarea
+                    placeholder="Your message or song request..."
+                    value={contactMessage}
+                    onChange={(e) => setContactMessage(e.target.value)}
+                    onKeyPress={(e) => handleKeyPress(e, "contact")}
+                    className="bg-white border-gray-300"
+                    disabled={contactLoading}
+                  />
+                  <Button
+                    onClick={handleSendContact}
+                    disabled={contactLoading || !contactEmail.trim() || !contactMessage.trim()}
+                    className="w-full bg-red-600 hover:bg-red-700"
+                  >
+                    {contactLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Sending...
+                      </>
+                    ) : (
+                      "Send Message"
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           </section>
         </main>
