@@ -626,8 +626,8 @@ export default function NewslineRadio() {
           <section>
             <div className="text-center space-y-2 mb-8">
               <h2 className="text-4xl font-bold mb-8 flex items-center space-x-2">
-                <Calendar className="w-8 h-8 text-blue-400" />
-                <span>Today's Schedule</span>
+                <Calendar className="w-8 h-8 text-red-500" />
+                <span className="text-black">Today's Schedule</span>
               </h2>
             </div>
 
@@ -645,13 +645,13 @@ export default function NewslineRadio() {
                   <Card
                     key={item.id || index}
                     className={`backdrop-blur-lg border-red-500/20 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 animate-fade-in-up ${
-                      item.status === "live" ? "bg-red-900/20 border-red-500/50" : "bg-white/5"
+                      item.status === "live" ? "bg-red-900/20 border-red-500/50" : "bg-white/90"
                     }`}
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <CardContent className="p-6 space-y-4">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2 text-red-400 font-mono text-sm">
+                        <div className="flex items-center space-x-2 text-red-500 font-mono text-sm font-semibold">
                           <Clock className="w-4 h-4" />
                           <span>
                             {item.startTime && item.endTime ? `${item.startTime} - ${item.endTime}` : item.time}
@@ -664,12 +664,14 @@ export default function NewslineRadio() {
                           </Badge>
                         )}
                       </div>
-                      <h3 className="text-lg font-semibold text-white">{item.show}</h3>
-                      <p className="text-gray-400 text-sm">Hosted by {item.host}</p>
+                      <h3 className="text-lg font-semibold text-black">{item.show}</h3>
+                      <p className="text-gray-700 text-sm font-medium">Hosted by {item.host}</p>
                       {item.status === "live" && (
-                        <div className="flex items-center space-x-2 text-red-400">
+                        <div className="flex items-center space-x-2 text-red-500">
                           <Users className="w-4 h-4" />
-                          <span className="text-sm">{(item.listeners || listeners).toLocaleString()} listening</span>
+                          <span className="text-sm font-medium">
+                            {(item.listeners || listeners).toLocaleString()} listening
+                          </span>
                         </div>
                       )}
                     </CardContent>
@@ -682,10 +684,10 @@ export default function NewslineRadio() {
           <section>
             <div className="text-center space-y-2 mb-8">
               <h2 className="text-4xl font-bold mb-8 flex items-center space-x-2">
-                <Mic className="w-8 h-8 text-blue-400" />
-                <span>Current Host</span>
+                <Mic className="w-8 h-8 text-red-500" />
+                <span className="text-black">Current Host</span>
               </h2>
-              <p className="text-gray-400">Meet the voice behind Newline Radio right now</p>
+              <p className="text-gray-700">Meet the voice behind Newline Radio right now</p>
             </div>
 
             {displayHosts.length === 0 ? (
@@ -701,7 +703,7 @@ export default function NewslineRadio() {
                 {displayHosts.map((dj, index) => (
                   <Card
                     key={dj.id || index}
-                    className="backdrop-blur-lg bg-white/5 border-red-500/20 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 animate-fade-in-up"
+                    className="backdrop-blur-lg bg-white/90 border-red-500/20 hover:bg-white/95 transition-all duration-300 transform hover:scale-105 animate-fade-in-up"
                     style={{ animationDelay: `${index * 150}ms` }}
                   >
                     <CardContent className="p-6 text-center space-y-4">
@@ -718,22 +720,22 @@ export default function NewslineRadio() {
                         </div>
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold">{dj.name}</h3>
-                        <p className="text-red-400">{dj.show}</p>
+                        <h3 className="text-xl font-bold text-black">{dj.name}</h3>
+                        <p className="text-red-500 font-medium">{dj.show}</p>
                         {dj.startTime && dj.endTime && (
-                          <p className="text-sm text-gray-400">
+                          <p className="text-sm text-gray-700 font-medium">
                             {dj.startTime} - {dj.endTime}
                           </p>
                         )}
                       </div>
                       <div className="flex items-center justify-center space-x-4 text-sm">
                         <div className="flex items-center space-x-1">
-                          <Users className="w-4 h-4 text-blue-400" />
-                          <span>{dj.followers}</span>
+                          <Users className="w-4 h-4 text-red-500" />
+                          <span className="text-black font-medium">{dj.followers}</span>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <Star className="w-4 h-4 fill-red-400 text-red-400" />
-                          <span>{dj.rating || 4.5}</span>
+                          <Star className="w-4 h-4 fill-red-500 text-red-500" />
+                          <span className="text-black font-medium">{dj.rating || 4.5}</span>
                         </div>
                       </div>
                       <Button className="w-full bg-red-600 hover:bg-red-700">Follow Host</Button>
@@ -747,8 +749,8 @@ export default function NewslineRadio() {
           <section>
             <div className="text-center space-y-2 mb-8">
               <h2 className="text-4xl font-bold mb-8 flex items-center space-x-2">
-                <News className="w-8 h-8 text-blue-400" />
-                <span>Latest Updates</span>
+                <News className="w-8 h-8 text-red-500" />
+                <span className="text-black">Latest Updates</span>
               </h2>
             </div>
 
@@ -765,19 +767,19 @@ export default function NewslineRadio() {
                 {displayNews.map((newsItem, index) => (
                   <Card
                     key={newsItem.id || index}
-                    className="backdrop-blur-lg bg-white/5 border-red-500/20 hover:bg-white/10 transition-all duration-300 animate-fade-in-up"
+                    className="backdrop-blur-lg bg-white/90 border-red-500/20 hover:bg-white/95 transition-all duration-300 animate-fade-in-up"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <CardContent className="p-6 space-y-3">
                       <div className="flex items-center justify-between">
-                        <Badge variant="secondary" className="bg-red-600/20 text-red-300">
+                        <Badge variant="secondary" className="bg-red-600/20 text-red-600 font-medium">
                           {newsItem.category}
                         </Badge>
-                        <span className="text-sm text-gray-400">
+                        <span className="text-sm text-gray-700 font-medium">
                           {newsItem.timestamp?.toDate?.()?.toLocaleDateString() || newsItem.time || "Recently"}
                         </span>
                       </div>
-                      <h3 className="text-lg font-semibold hover:text-red-400 cursor-pointer transition-colors">
+                      <h3 className="text-lg font-semibold text-black hover:text-red-500 cursor-pointer transition-colors">
                         {newsItem.url ? (
                           <a href={newsItem.url} target="_blank" rel="noopener noreferrer">
                             {newsItem.title}
@@ -786,12 +788,12 @@ export default function NewslineRadio() {
                           newsItem.title
                         )}
                       </h3>
-                      <div className="flex items-center justify-center space-x-4 text-sm text-gray-400">
-                        <button className="flex items-center space-x-1 hover:text-red-400">
+                      <div className="flex items-center justify-center space-x-4 text-sm text-gray-700">
+                        <button className="flex items-center space-x-1 hover:text-red-500 font-medium">
                           <Heart className="w-4 h-4" />
                           <span>Like</span>
                         </button>
-                        <button className="flex items-center space-x-1 hover:text-red-400">
+                        <button className="flex items-center space-x-1 hover:text-red-500 font-medium">
                           <Share2 className="w-4 h-4" />
                           <span>Share</span>
                         </button>
