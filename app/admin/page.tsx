@@ -420,7 +420,7 @@ export default function AdminPanel() {
                     <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
                       <div>
                         <label className="text-sm font-medium text-gray-700">Server:</label>
-                        <p className="text-red-600 font-mono">s12.ssurahosting.com</p>
+                        <p className="text-red-600 font-mono">a12.asurahosting.com</p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-700">
@@ -447,7 +447,7 @@ export default function AdminPanel() {
                     <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
                       <div>
                         <label className="text-sm font-medium text-gray-700">Server:</label>
-                        <p className="text-red-600 font-mono">s12.ssurahosting.com</p>
+                        <p className="text-red-600 font-mono">a12.asurahosting.com</p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-700">
