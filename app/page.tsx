@@ -510,7 +510,7 @@ export default function NewslineRadio() {
                         />
                       </div>
 
-                      <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center justify-center space-x-4 text-sm">
                         <div className="flex items-center space-x-2 text-gray-700">
                           <Zap className="w-4 h-4" />
                           <span>High Quality Stream</span>
@@ -948,77 +948,77 @@ export default function NewslineRadio() {
           </section>
         </main>
 
-        <footer className="mt-16 bg-gradient-to-r from-blue-900/20 to-blue-800/10 backdrop-blur-md border-t border-blue-500/20">
+        <footer className="mt-16 bg-black border-t border-gray-700">
           <div className="max-w-7xl mx-auto p-8">
             <div className="grid md:grid-cols-4 gap-8">
               <div>
-                <h3 className="text-lg font-bold text-blue-400 mb-4">Newline Radio</h3>
-                <p className="text-sm text-gray-400">
+                <h3 className="text-lg font-bold text-white mb-4">Newline Radio</h3>
+                <p className="text-sm text-gray-300">
                   Broadcasting excellence 24/7. Your source for news, music, and entertainment.
                 </p>
               </div>
               <div>
-                <h4 className="font-semibold mb-4">Quick Links</h4>
-                <ul className="space-y-2 text-sm text-gray-400">
+                <h4 className="font-semibold mb-4 text-white">Quick Links</h4>
+                <ul className="space-y-2 text-sm text-gray-300">
                   <li>
-                    <a href="#" className="hover:text-blue-400">
+                    <a href="#" className="hover:text-white">
                       Live Stream
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="hover:text-blue-400">
+                    <a href="#" className="hover:text-white">
                       Schedule
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="hover:text-blue-400">
+                    <a href="#" className="hover:text-white">
                       Podcasts
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="hover:text-blue-400">
+                    <a href="#" className="hover:text-white">
                       Contact
                     </a>
                   </li>
                   <li>
-                    <Link href="/admin" className="hover:text-blue-400">
+                    <Link href="/admin" className="hover:text-white">
                       Admin Login
                     </Link>
                   </li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold mb-4">Shows</h4>
-                <ul className="space-y-2 text-sm text-gray-400">
+                <h4 className="font-semibold mb-4 text-white">Shows</h4>
+                <ul className="space-y-2 text-sm text-gray-300">
                   <li>
-                    <a href="#" className="hover:text-blue-400">
+                    <a href="#" className="hover:text-white">
                       Morning Newsline
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="hover:text-blue-400">
+                    <a href="#" className="hover:text-white">
                       Business Beat
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="hover:text-blue-400">
+                    <a href="#" className="hover:text-white">
                       Prime Time News
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="hover:text-blue-400">
+                    <a href="#" className="hover:text-white">
                       Night Pulse
                     </a>
                   </li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold mb-4">Follow Us</h4>
+                <h4 className="font-semibold mb-4 text-white">Follow Us</h4>
                 <div className="flex space-x-3">
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-red-400 hover:bg-red-500/20"
+                    className="text-red-400 hover:bg-red-500/20 hover:text-red-300"
                     onClick={() => window.open("https://instagram.com/newslinemediatv", "_blank")}
                   >
                     <Instagram className="w-4 h-4" />
@@ -1026,7 +1026,7 @@ export default function NewslineRadio() {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-blue-400 hover:bg-blue-500/20"
+                    className="text-blue-400 hover:bg-blue-500/20 hover:text-blue-300"
                     onClick={() => window.open("https://twitter.com/newslinemediatv", "_blank")}
                   >
                     <Twitter className="w-4 h-4" />
@@ -1034,7 +1034,7 @@ export default function NewslineRadio() {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-blue-400 hover:bg-blue-500/20"
+                    className="text-blue-400 hover:bg-blue-500/20 hover:text-blue-300"
                     onClick={() => window.open("https://facebook.com/newslinemediatv", "_blank")}
                   >
                     <Facebook className="w-4 h-4" />
@@ -1042,7 +1042,7 @@ export default function NewslineRadio() {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-blue-400 hover:bg-blue-500/20"
+                    className="text-blue-400 hover:bg-blue-500/20 hover:text-blue-300"
                     onClick={() => window.open("https://youtube.com/newslinemediatv", "_blank")}
                   >
                     <Youtube className="w-4 h-4" />
@@ -1050,7 +1050,7 @@ export default function NewslineRadio() {
                 </div>
               </div>
             </div>
-            <div className="border-t border-blue-500/20 mt-8 pt-8 text-center text-sm text-gray-400">
+            <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-300">
               <p>© 2024 Newline Radio. All rights reserved. Broadcasting since 2020.</p>
             </div>
           </div>
