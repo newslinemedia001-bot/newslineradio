@@ -17,6 +17,8 @@ import {
   Mic,
   Rows as News,
   BarChart3,
+  Radio,
+  Server,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -241,11 +243,11 @@ export default function AdminPanel() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-800 text-white flex items-center justify-center">
-        <Card className="w-full max-w-md backdrop-blur-lg bg-white/5 border-blue-500/20">
+      <div className="min-h-screen bg-white text-black flex items-center justify-center">
+        <Card className="w-full max-w-md border border-gray-200 shadow-lg">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-blue-400">Admin Login</CardTitle>
-            <p className="text-gray-400">Access the Newsline Radio admin panel</p>
+            <CardTitle className="text-2xl font-bold text-black">Admin Login</CardTitle>
+            <p className="text-gray-600">Access the Newsline Radio admin panel</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
@@ -254,7 +256,7 @@ export default function AdminPanel() {
                 placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="bg-black/20 border-blue-500/30"
+                className="bg-white border-gray-300 text-black"
                 required
               />
               <div className="relative">
@@ -263,21 +265,21 @@ export default function AdminPanel() {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-black/20 border-blue-500/30 pr-10"
+                  className="bg-white border-gray-300 text-black pr-10"
                   required
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-2 top-1/2 -translate-y-1/2"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
               </div>
-              {loginError && <p className="text-red-400 text-sm">{loginError}</p>}
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+              {loginError && <p className="text-red-500 text-sm">{loginError}</p>}
+              <Button type="submit" className="w-full bg-red-600 hover:bg-red-700 text-white">
                 Login
               </Button>
             </form>
@@ -288,19 +290,19 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-800 text-white">
+    <div className="min-h-screen bg-white text-black">
       <div className="container mx-auto p-6">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-blue-400">Admin Panel</h1>
-            <p className="text-gray-400">Manage Newsline Radio content and settings</p>
+            <h1 className="text-3xl font-bold text-black">Admin Panel</h1>
+            <p className="text-gray-600">Manage Newsline Radio content and settings</p>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" onClick={() => router.push("/")} className="text-blue-400">
+            <Button variant="ghost" onClick={() => router.push("/")} className="text-red-600 hover:text-red-700">
               <Home className="w-4 h-4 mr-2" />
               Back to Site
             </Button>
-            <Button variant="ghost" onClick={handleLogout} className="text-red-400">
+            <Button variant="ghost" onClick={handleLogout} className="text-red-600 hover:text-red-700">
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>
@@ -308,49 +310,49 @@ export default function AdminPanel() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="backdrop-blur-lg bg-white/5 border-blue-500/20">
+          <Card className="border border-gray-200 bg-white shadow-sm">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <Users className="w-8 h-8 text-blue-400" />
+                <Users className="w-8 h-8 text-red-600" />
                 <div>
-                  <p className="text-sm text-gray-400">Current Listeners</p>
-                  <p className="text-2xl font-bold">{stats.currentListeners || 0}</p>
+                  <p className="text-sm text-gray-600">Current Listeners</p>
+                  <p className="text-2xl font-bold text-black">{stats.currentListeners || 0}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="backdrop-blur-lg bg-white/5 border-blue-500/20">
+          <Card className="border border-gray-200 bg-white shadow-sm">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <BarChart3 className="w-8 h-8 text-green-400" />
+                <BarChart3 className="w-8 h-8 text-red-600" />
                 <div>
-                  <p className="text-sm text-gray-400">Peak Today</p>
-                  <p className="text-2xl font-bold">{stats.peakListeners24h || 0}</p>
+                  <p className="text-sm text-gray-600">Peak Today</p>
+                  <p className="text-2xl font-bold text-black">{stats.peakListeners24h || 0}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="backdrop-blur-lg bg-white/5 border-blue-500/20">
+          <Card className="border border-gray-200 bg-white shadow-sm">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <MessageCircle className="w-8 h-8 text-red-400" />
+                <MessageCircle className="w-8 h-8 text-red-600" />
                 <div>
-                  <p className="text-sm text-gray-400">Total Likes</p>
-                  <p className="text-2xl font-bold">{stats.totalLikes24h || 0}</p>
+                  <p className="text-sm text-gray-600">Total Likes</p>
+                  <p className="text-2xl font-bold text-black">{stats.totalLikes24h || 0}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="backdrop-blur-lg bg-white/5 border-blue-500/20">
+          <Card className="border border-gray-200 bg-white shadow-sm">
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <Mail className="w-8 h-8 text-yellow-400" />
+                <Mail className="w-8 h-8 text-red-600" />
                 <div>
-                  <p className="text-sm text-gray-400">New Messages</p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-sm text-gray-600">New Messages</p>
+                  <p className="text-2xl font-bold text-black">
                     {contactMessages.filter((msg) => msg.status === "unread").length}
                   </p>
                 </div>
@@ -359,21 +361,146 @@ export default function AdminPanel() {
           </Card>
         </div>
 
-        <Tabs defaultValue="schedule" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-white/5">
-            <TabsTrigger value="schedule">Schedule</TabsTrigger>
-            <TabsTrigger value="hosts">Hosts</TabsTrigger>
-            <TabsTrigger value="news">News</TabsTrigger>
-            <TabsTrigger value="messages">Messages</TabsTrigger>
-            <TabsTrigger value="chat">Live Chat</TabsTrigger>
+        <Tabs defaultValue="connection" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6 bg-gray-100">
+            <TabsTrigger
+              value="connection"
+              className="text-black data-[state=active]:bg-white data-[state=active]:text-red-600"
+            >
+              Connection
+            </TabsTrigger>
+            <TabsTrigger
+              value="schedule"
+              className="text-black data-[state=active]:bg-white data-[state=active]:text-red-600"
+            >
+              Schedule
+            </TabsTrigger>
+            <TabsTrigger
+              value="hosts"
+              className="text-black data-[state=active]:bg-white data-[state=active]:text-red-600"
+            >
+              Hosts
+            </TabsTrigger>
+            <TabsTrigger
+              value="news"
+              className="text-black data-[state=active]:bg-white data-[state=active]:text-red-600"
+            >
+              News
+            </TabsTrigger>
+            <TabsTrigger
+              value="messages"
+              className="text-black data-[state=active]:bg-white data-[state=active]:text-red-600"
+            >
+              Messages
+            </TabsTrigger>
+            <TabsTrigger
+              value="chat"
+              className="text-black data-[state=active]:bg-white data-[state=active]:text-red-600"
+            >
+              Live Chat
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="schedule" className="space-y-6">
-            <Card className="backdrop-blur-lg bg-white/5 border-blue-500/20">
+          <TabsContent value="connection" className="space-y-6">
+            <Card className="border border-gray-200 bg-white shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Calendar className="w-5 h-5 text-blue-400" />
-                  <span>Schedule Management</span>
+                  <Radio className="w-5 h-5 text-red-600" />
+                  <span className="text-black">Connection Information</span>
+                </CardTitle>
+                <p className="text-gray-600">Broadcasting setup instructions for radio hosts and testers</p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Server className="w-5 h-5 text-red-600" />
+                      <h3 className="text-lg font-semibold text-black">Icecast Clients</h3>
+                    </div>
+                    <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">Server:</label>
+                        <p className="text-red-600 font-mono">s12.ssurahosting.com</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">
+                          You may need to connect directly via your IP address:
+                        </label>
+                        <p className="text-red-600 font-mono">95.188.195.42</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">Port:</label>
+                        <p className="text-red-600 font-mono">8555</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">Mount Name:</label>
+                        <p className="text-red-600 font-mono">/</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Radio className="w-5 h-5 text-red-600" />
+                      <h3 className="text-lg font-semibold text-black">Shoutcast Clients</h3>
+                    </div>
+                    <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">Server:</label>
+                        <p className="text-red-600 font-mono">s12.ssurahosting.com</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">
+                          You may need to connect directly via your IP address:
+                        </label>
+                        <p className="text-red-600 font-mono">95.188.195.42</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">Port:</label>
+                        <p className="text-red-600 font-mono">8555</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">For some clients, use port:</label>
+                        <p className="text-red-600 font-mono">8556</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-700">Password:</label>
+                        <p className="text-red-600 font-mono">dj_username:dj_password in our case is newsline:newsline1234</p>
+                        <p className="text-sm text-gray-600">or</p>
+                        <p className="text-red-600 font-mono">dj_username,dj_password in our case is newsline,newsline1234</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="font-semibold text-black mb-2">Setup Instructions</h4>
+                  <p className="text-gray-700 mb-2">
+                    Setup instructions for broadcasting software are available on the{" "}
+                    <a
+                      href="https://azuracast.com/docs/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-red-600 hover:text-red-700 underline"
+                    >
+                      AzuraCast wiki
+                    </a>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Use these connection details in your broadcasting software (OBS, SAM Broadcaster, etc.) to connect
+                    to the radio stream.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="schedule" className="space-y-6">
+            <Card className="border border-gray-200 bg-white shadow-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Calendar className="w-5 h-5 text-red-600" />
+                  <span className="text-black">Schedule Management</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -385,7 +512,7 @@ export default function AdminPanel() {
                     type="date"
                     value={scheduleForm.date}
                     onChange={(e) => setScheduleForm({ ...scheduleForm, date: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                     required
                   />
                   <Input
@@ -393,7 +520,7 @@ export default function AdminPanel() {
                     placeholder="Start Time"
                     value={scheduleForm.startTime}
                     onChange={(e) => setScheduleForm({ ...scheduleForm, startTime: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                     required
                   />
                   <Input
@@ -401,21 +528,21 @@ export default function AdminPanel() {
                     placeholder="End Time"
                     value={scheduleForm.endTime}
                     onChange={(e) => setScheduleForm({ ...scheduleForm, endTime: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                     required
                   />
                   <Input
                     placeholder="Show Name"
                     value={scheduleForm.show}
                     onChange={(e) => setScheduleForm({ ...scheduleForm, show: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                     required
                   />
                   <Input
                     placeholder="Host Name"
                     value={scheduleForm.host}
                     onChange={(e) => setScheduleForm({ ...scheduleForm, host: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                     required
                   />
                   <div className="flex items-center space-x-2">
@@ -424,31 +551,31 @@ export default function AdminPanel() {
                       id="scheduleDefault"
                       checked={scheduleForm.isDefault || false}
                       onChange={(e) => setScheduleForm({ ...scheduleForm, isDefault: e.target.checked })}
-                      className="w-4 h-4 text-blue-600 bg-black/20 border-blue-500/30 rounded"
+                      className="w-4 h-4 text-red-600 bg-white border-gray-300 rounded"
                     />
-                    <label htmlFor="scheduleDefault" className="text-sm text-gray-300">
+                    <label htmlFor="scheduleDefault" className="text-sm text-gray-700">
                       Default
                     </label>
                   </div>
-                  <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                  <Button type="submit" className="bg-red-600 hover:bg-red-700 text-white">
                     {editingItem ? "Update" : "Add"}
                   </Button>
                 </form>
 
                 <div className="space-y-2">
                   {schedule.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-4 bg-black/20 rounded-lg">
+                    <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
                       <div className="flex items-center space-x-4">
-                        <Clock className="w-4 h-4 text-blue-400" />
-                        <span className="text-sm text-gray-400">{item.date}</span>
-                        <span className="font-mono">
+                        <Clock className="w-4 h-4 text-red-600" />
+                        <span className="text-sm text-gray-600">{item.date}</span>
+                        <span className="font-mono text-black">
                           {item.startTime} - {item.endTime}
                         </span>
-                        <span className="font-semibold">{item.show}</span>
-                        <span className="text-gray-400">with {item.host}</span>
+                        <span className="font-semibold text-black">{item.show}</span>
+                        <span className="text-gray-600">with {item.host}</span>
                         <Badge variant={item.status === "live" ? "destructive" : "secondary"}>{item.status}</Badge>
                         {item.isDefault && (
-                          <Badge variant="outline" className="text-yellow-400 border-yellow-400">
+                          <Badge variant="outline" className="text-red-600 border-red-600">
                             DEFAULT
                           </Badge>
                         )}
@@ -458,7 +585,7 @@ export default function AdminPanel() {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleEdit(item, "schedule")}
-                          className="text-blue-400"
+                          className="text-red-600 hover:text-red-700"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -466,7 +593,7 @@ export default function AdminPanel() {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleDelete(item.id, "schedule")}
-                          className="text-red-400"
+                          className="text-red-600 hover:text-red-700"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -479,11 +606,11 @@ export default function AdminPanel() {
           </TabsContent>
 
           <TabsContent value="hosts" className="space-y-6">
-            <Card className="backdrop-blur-lg bg-white/5 border-blue-500/20">
+            <Card className="border border-gray-200 bg-white shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Mic className="w-5 h-5 text-blue-400" />
-                  <span>Hosts Management</span>
+                  <Mic className="w-5 h-5 text-red-600" />
+                  <span className="text-black">Hosts Management</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -495,21 +622,21 @@ export default function AdminPanel() {
                     placeholder="Host Name"
                     value={hostForm.name}
                     onChange={(e) => setHostForm({ ...hostForm, name: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                     required
                   />
                   <Input
                     placeholder="Show Name"
                     value={hostForm.show}
                     onChange={(e) => setHostForm({ ...hostForm, show: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                     required
                   />
                   <Input
                     type="date"
                     value={hostForm.date}
                     onChange={(e) => setHostForm({ ...hostForm, date: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                     required
                   />
                   <Input
@@ -517,7 +644,7 @@ export default function AdminPanel() {
                     placeholder="Start Time"
                     value={hostForm.startTime}
                     onChange={(e) => setHostForm({ ...hostForm, startTime: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                     required
                   />
                   <Input
@@ -525,20 +652,20 @@ export default function AdminPanel() {
                     placeholder="End Time"
                     value={hostForm.endTime}
                     onChange={(e) => setHostForm({ ...hostForm, endTime: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                     required
                   />
                   <Input
                     placeholder="Image URL"
                     value={hostForm.image}
                     onChange={(e) => setHostForm({ ...hostForm, image: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                   />
                   <Input
                     placeholder="Followers"
                     value={hostForm.followers}
                     onChange={(e) => setHostForm({ ...hostForm, followers: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                   />
                   <div className="flex items-center space-x-2">
                     <input
@@ -546,34 +673,34 @@ export default function AdminPanel() {
                       id="hostDefault"
                       checked={hostForm.isDefault || false}
                       onChange={(e) => setHostForm({ ...hostForm, isDefault: e.target.checked })}
-                      className="w-4 h-4 text-blue-600 bg-black/20 border-blue-500/30 rounded"
+                      className="w-4 h-4 text-red-600 bg-white border-gray-300 rounded"
                     />
-                    <label htmlFor="hostDefault" className="text-sm text-gray-300">
+                    <label htmlFor="hostDefault" className="text-sm text-gray-700">
                       Default
                     </label>
                   </div>
-                  <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                  <Button type="submit" className="bg-red-600 hover:bg-red-700 text-white">
                     {editingItem ? "Update" : "Add"}
                   </Button>
                 </form>
 
                 <div className="grid gap-4 md:grid-cols-2">
                   {hosts.map((host) => (
-                    <div key={host.id} className="flex items-center justify-between p-4 bg-black/20 rounded-lg">
+                    <div key={host.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
                       <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                        <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center text-white">
                           {host.name[0]}
                         </div>
                         <div>
                           <div className="flex items-center space-x-2">
-                            <h3 className="font-semibold">{host.name}</h3>
+                            <h3 className="font-semibold text-black">{host.name}</h3>
                             {host.isDefault && (
-                              <Badge variant="outline" className="text-yellow-400 border-yellow-400 text-xs">
+                              <Badge variant="outline" className="text-red-600 border-red-600 text-xs">
                                 DEFAULT
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-gray-400">{host.show}</p>
+                          <p className="text-sm text-gray-600">{host.show}</p>
                           <p className="text-xs text-gray-500">
                             {host.date} • {host.startTime}-{host.endTime}
                           </p>
@@ -587,7 +714,7 @@ export default function AdminPanel() {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleEdit(host, "host")}
-                          className="text-blue-400"
+                          className="text-red-600 hover:text-red-700"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -595,7 +722,7 @@ export default function AdminPanel() {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleDelete(host.id, "host")}
-                          className="text-red-400"
+                          className="text-red-600 hover:text-red-700"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -608,11 +735,11 @@ export default function AdminPanel() {
           </TabsContent>
 
           <TabsContent value="news" className="space-y-6">
-            <Card className="backdrop-blur-lg bg-white/5 border-blue-500/20">
+            <Card className="border border-gray-200 bg-white shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <News className="w-5 h-5 text-blue-400" />
-                  <span>News Management</span>
+                  <News className="w-5 h-5 text-red-600" />
+                  <span className="text-black">News Management</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -624,31 +751,31 @@ export default function AdminPanel() {
                     placeholder="News Title"
                     value={newsForm.title}
                     onChange={(e) => setNewsForm({ ...newsForm, title: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                     required
                   />
                   <Input
                     placeholder="Category"
                     value={newsForm.category}
                     onChange={(e) => setNewsForm({ ...newsForm, category: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                     required
                   />
                   <Input
                     placeholder="Article URL (optional)"
                     value={newsForm.url}
                     onChange={(e) => setNewsForm({ ...newsForm, url: e.target.value })}
-                    className="bg-black/20 border-blue-500/30"
+                    className="bg-white border-gray-300 text-black"
                     type="url"
                   />
-                  <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                  <Button type="submit" className="bg-red-600 hover:bg-red-700 text-white">
                     {editingItem ? "Update" : "Add"}
                   </Button>
                 </form>
 
                 <div className="space-y-2">
                   {news.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-4 bg-black/20 rounded-lg">
+                    <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
                           <Badge variant="secondary">{item.category}</Badge>
@@ -656,13 +783,13 @@ export default function AdminPanel() {
                             {item.timestamp?.toDate?.()?.toLocaleDateString() || "Recently"}
                           </span>
                         </div>
-                        <h3 className="font-semibold">{item.title}</h3>
+                        <h3 className="font-semibold text-black">{item.title}</h3>
                         {item.url && (
                           <a
                             href={item.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-400 text-sm hover:underline"
+                            className="text-red-600 text-sm hover:underline"
                           >
                             Read more →
                           </a>
@@ -673,7 +800,7 @@ export default function AdminPanel() {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleEdit(item, "news")}
-                          className="text-blue-400"
+                          className="text-red-600 hover:text-red-700"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -681,7 +808,7 @@ export default function AdminPanel() {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleDelete(item.id, "news")}
-                          className="text-red-400"
+                          className="text-red-600 hover:text-red-700"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -694,52 +821,50 @@ export default function AdminPanel() {
           </TabsContent>
 
           <TabsContent value="messages" className="space-y-6">
-            <Card className="backdrop-blur-lg bg-white/5 border-blue-500/20">
+            <Card className="border border-gray-200 bg-white shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <Mail className="w-5 h-5 text-blue-400" />
-                    <span>Contact Messages</span>
+                    <Mail className="w-5 h-5 text-red-600" />
+                    <span className="text-black">Contact Messages</span>
                   </div>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {contactMessages.length === 0 ? (
-                  <p className="text-center text-gray-400 py-8">No contact messages found.</p>
+                  <p className="text-center text-gray-500 py-8">No contact messages found.</p>
                 ) : (
                   <div className="space-y-4">
                     {contactMessages.map((message) => (
                       <div
                         key={message.id}
                         className={`p-4 rounded-lg border ${
-                          message.status === "unread"
-                            ? "bg-blue-900/20 border-blue-500/30"
-                            : "bg-black/20 border-gray-500/30"
+                          message.status === "unread" ? "bg-red-50 border-red-200" : "bg-gray-50 border-gray-200"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center space-x-2">
-                            <Mail className="w-4 h-4 text-blue-400" />
-                            <span className="font-semibold">{message.email}</span>
+                            <Mail className="w-4 h-4 text-red-600" />
+                            <span className="font-semibold text-black">{message.email}</span>
                             <Badge variant={message.status === "unread" ? "destructive" : "secondary"}>
                               {message.status}
                             </Badge>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <span className="text-sm text-gray-400">{message.timeAgo}</span>
+                            <span className="text-sm text-gray-500">{message.timeAgo}</span>
                             {message.status === "unread" && (
                               <Button
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => handleMarkAsRead(message.id)}
-                                className="text-green-400"
+                                className="text-green-600 hover:text-green-700"
                               >
                                 Mark as Read
                               </Button>
                             )}
                           </div>
                         </div>
-                        <p className="text-gray-300">{message.message}</p>
+                        <p className="text-gray-700">{message.message}</p>
                       </div>
                     ))}
                   </div>
@@ -749,31 +874,31 @@ export default function AdminPanel() {
           </TabsContent>
 
           <TabsContent value="chat" className="space-y-6">
-            <Card className="backdrop-blur-lg bg-white/5 border-blue-500/20">
+            <Card className="border border-gray-200 bg-white shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <MessageCircle className="w-5 h-5 text-blue-400" />
-                    <span>Live Chat Messages</span>
+                    <MessageCircle className="w-5 h-5 text-red-600" />
+                    <span className="text-black">Live Chat Messages</span>
                   </div>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {chatMessages.length === 0 ? (
-                  <p className="text-center text-gray-400 py-8">No chat messages found.</p>
+                  <p className="text-center text-gray-500 py-8">No chat messages found.</p>
                 ) : (
                   <div className="space-y-3 max-h-96 overflow-y-auto">
                     {chatMessages.map((message) => (
-                      <div key={message.id} className="flex items-start space-x-3 p-3 bg-black/20 rounded-lg">
-                        <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-xs font-bold">
+                      <div key={message.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg border">
+                        <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-xs font-bold text-white">
                           {message.username[0]?.toUpperCase()}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-1">
-                            <span className="font-semibold text-red-400">{message.username}</span>
+                            <span className="font-semibold text-red-600">{message.username}</span>
                             <span className="text-xs text-gray-500">{message.timeAgo}</span>
                           </div>
-                          <p className="text-sm text-gray-300">{message.message}</p>
+                          <p className="text-sm text-gray-700">{message.message}</p>
                         </div>
                       </div>
                     ))}
