@@ -97,6 +97,14 @@
     animation: color-cycle 4s ease-in-out infinite;
     background-size: 300% 300%;
   }
+
+  .animate-shine {
+    animation: shine 3s linear infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spin 4s linear infinite;
+  }
 }
 
 @keyframes fadeIn {
@@ -156,5 +164,23 @@
   }
   75% {
     background-position: 75% 75%;
+  }
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }

@@ -444,12 +444,26 @@ export default function NewslineRadio() {
             
             {/* Animated Banner in Middle */}
             <div className="hidden lg:block flex-1 mx-8">
-              <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-red-500 to-white rounded-lg px-4 py-2 mx-4">
-                <div className="animate-marquee whitespace-nowrap">
-                  <span className="text-sm font-bold text-black mr-8">🔴 NEWSLINE RADIO - LIVE 24/7</span>
-                  <span className="text-sm font-bold text-black mr-8">📻 BREAKING NEWS & ENTERTAINMENT</span>
-                  <span className="text-sm font-bold text-black mr-8">🎵 QUALITY BROADCASTS</span>
+              <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-red-500 to-white rounded-lg shadow-lg border-2 border-white">
+                <div className="px-6 py-3">
+                  <div className="flex items-center justify-center space-x-4">
+                    <div className="animate-pulse">
+                      <Radio className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-white animate-bounce">
+                        NEWSLINE RADIO
+                      </div>
+                      <div className="text-sm text-white font-medium animate-pulse">
+                        LIVE STREAMING 24/7 • NEWS • MUSIC • ENTERTAINMENT
+                      </div>
+                    </div>
+                    <div className="animate-spin-slow">
+                      <Headphones className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
                 </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20 animate-shine"></div>
               </div>
             </div>
 
