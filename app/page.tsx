@@ -418,7 +418,7 @@ export default function NewslineRadio() {
   return (
     <div className="min-h-screen bg-white text-black">
       <div className="relative">
-        <header className="bg-black text-white p-4 shadow-md">
+        <header className="bg-black text-white p-6 shadow-md">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center space-x-6">
               <div className="relative group">
@@ -445,7 +445,7 @@ export default function NewslineRadio() {
             {/* Animated Banner in Middle */}
             <div className="hidden lg:block flex-1 mx-8">
               <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-red-500 to-white rounded-lg shadow-lg border-2 border-white">
-                <div className="px-6 py-3">
+                <div className="px-8 py-4">
                   <div className="flex items-center justify-center space-x-4">
                     <div className="animate-pulse">
                       <Radio className="w-6 h-6 text-white" />
