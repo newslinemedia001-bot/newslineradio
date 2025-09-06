@@ -129,8 +129,8 @@ export default function NewslineRadio() {
         const recentlyPlayedData = generateRecentlyPlayed(scheduleData)
         setRecentlyPlayed(recentlyPlayedData)
 
-        const userLiked = await checkUserLike(storedUserId).catch(() => false)
-        setIsLiked(userLiked)
+        // Start with unliked state, let user like manually
+        setIsLiked(false)
       } catch (error) {
         console.error("Error initializing user:", error)
       } finally {
@@ -433,14 +433,22 @@ export default function NewslineRadio() {
                 </Link>
               </div>
               <div className="hidden md:flex items-center space-x-4">
-                <Badge variant="secondary" className="bg-red-600 text-white border-red-600">
-                  <Radio className="w-3 h-3 mr-1" />
-                  LIVE
-                </Badge>
-                <div className="flex items-center space-x-2 text-sm">
-                  <Users className="w-4 h-4 text-white" />
-                  <span className="font-mono text-red-500">{listeners.toLocaleString()}</span>
-                  <span className="text-gray-300">listeners</span>
+                <div className="flex items-center space-x-3 animate-pulse">
+                  <Radio className="w-4 h-4 text-blue-400 animate-bounce" />
+                  <span className="text-sm font-semibold px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 via-red-500 to-white text-black animate-gradient-x border border-blue-300">
+                    LIVE ON AIR
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Animated Banner in Middle */}
+            <div className="hidden lg:block flex-1 mx-8">
+              <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-red-500 to-white rounded-lg px-4 py-2 mx-4">
+                <div className="animate-marquee whitespace-nowrap">
+                  <span className="text-sm font-bold text-black mr-8">🔴 NEWSLINE RADIO - LIVE 24/7</span>
+                  <span className="text-sm font-bold text-black mr-8">📻 BREAKING NEWS & ENTERTAINMENT</span>
+                  <span className="text-sm font-bold text-black mr-8">🎵 QUALITY BROADCASTS</span>
                 </div>
               </div>
             </div>
@@ -483,7 +491,11 @@ export default function NewslineRadio() {
         <main className="max-w-7xl mx-auto p-6 space-y-12">
           <section className="text-center space-y-8">
             <div className="space-y-4 animate-fade-in">
-              <h1 className="text-5xl md:text-7xl font-bold text-black">LIVE ON AIR</h1>
+              <h1 className="text-5xl md:text-7xl font-bold">
+                <span className="animate-color-cycle bg-gradient-to-r from-blue-600 via-red-500 to-blue-400 bg-clip-text text-transparent">
+                  LIVE ON AIR
+                </span>
+              </h1>
               <p className="text-xl text-gray-700 max-w-3xl mx-auto">
                 Broadcasting the latest news, music, and entertainment 24/7 from Newsline Radio
               </p>
@@ -491,12 +503,12 @@ export default function NewslineRadio() {
 
             <div className="grid md:grid-cols-3 gap-6">
               <div className="md:col-span-2">
-                <Card className="bg-white border-2 border-gray-200 shadow-lg">
+                <Card className="bg-white border-2 border-blue-200 shadow-lg">
                   <CardContent className="p-8 space-y-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <div className="relative">
-                          <Radio className="w-8 h-8 text-red-600" />
+                          <Radio className="w-8 h-8 text-blue-600" />
                         </div>
                         <div>
                           <h3 className="text-xl font-bold text-black">Morning Newsline</h3>
@@ -504,8 +516,8 @@ export default function NewslineRadio() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-red-600">{listeners.toLocaleString()}</div>
-                        <div className="text-sm text-gray-600">listeners</div>
+                        <div className="text-lg font-medium text-blue-600">NOW STREAMING</div>
+                        <div className="text-sm text-gray-600">Live Broadcast</div>
                       </div>
                     </div>
 
@@ -515,13 +527,13 @@ export default function NewslineRadio() {
                         disabled={isLoading}
                         variant="ghost"
                         size="lg"
-                        className={`${isLiked ? "text-red-600" : "text-gray-600"} hover:text-red-500 transition-colors ${isLoading ? "opacity-50" : ""}`}
+                        className={`${isLiked ? "text-blue-600" : "text-gray-600"} hover:text-blue-500 transition-colors ${isLoading ? "opacity-50" : ""}`}
                       >
                         <Heart className={`w-6 h-6 ${isLiked ? "fill-current" : ""}`} />
                         <span className="ml-2">{isLoading ? "..." : likes}</span>
                       </Button>
 
-                      <Button variant="ghost" size="lg" className="text-gray-600 hover:text-red-500">
+                      <Button variant="ghost" size="lg" className="text-gray-600 hover:text-blue-500">
                         <Share2 className="w-6 h-6" />
                       </Button>
                     </div>
@@ -558,16 +570,16 @@ export default function NewslineRadio() {
               </div>
 
               <div className="space-y-4">
-                <Card className="bg-white border-2 border-gray-200 shadow-lg">
+                <Card className="bg-white border-2 border-blue-200 shadow-lg">
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2 text-black">
-                      <Music className="w-5 h-5" />
+                      <Music className="w-5 h-5 text-blue-600" />
                       <span>Now Playing</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="text-center">
-                      <div className="w-16 h-16 bg-red-600 mx-auto mb-3 flex items-center justify-center">
+                      <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-red-500 mx-auto mb-3 flex items-center justify-center">
                         <Headphones className="w-8 h-8 text-white" />
                       </div>
                       <h4 className="font-semibold text-black">{currentTrack.title}</h4>
@@ -579,33 +591,31 @@ export default function NewslineRadio() {
                     </div>
                     <div className="w-full bg-gray-300 h-1">
                       <div
-                        className="bg-red-600 h-1 transition-all duration-1000 ease-linear"
+                        className="bg-gradient-to-r from-blue-600 to-red-500 h-1 transition-all duration-1000 ease-linear"
                         style={{ width: `${(currentTrack.currentTime / currentTrack.duration) * 100}%` }}
                       ></div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-white border-2 border-gray-200 shadow-lg">
+                <Card className="bg-white border-2 border-blue-200 shadow-lg">
                   <CardContent className="p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-black font-medium">Peak Listeners Today</span>
-                      <span className="text-red-600 font-bold">
-                        {isLoading ? "..." : peakListeners.toLocaleString()}
-                      </span>
-                    </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-black font-medium">Show Rating</span>
                       <div className="flex items-center space-x-1">
                         {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="w-3 h-3 fill-red-600 text-red-600" />
+                          <Star key={i} className="w-3 h-3 fill-blue-600 text-blue-600" />
                         ))}
-                        <span className="text-sm text-red-600 ml-1">4.9</span>
+                        <span className="text-sm text-blue-600 ml-1">4.9</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-black font-medium">Total Likes</span>
-                      <span className="text-red-600 font-bold">{isLoading ? "..." : likes.toLocaleString()}</span>
+                      <span className="text-blue-600 font-bold">{isLoading ? "..." : likes.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-black font-medium">Stream Quality</span>
+                      <span className="text-green-600 font-bold">HD Audio</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -615,13 +625,13 @@ export default function NewslineRadio() {
 
           <section>
             <h2 className="text-3xl font-bold mb-8 flex items-center space-x-2 text-black">
-              <TrendingUp className="w-8 h-8 text-red-600" />
+              <TrendingUp className="w-8 h-8 text-blue-600" />
               <span>Recently Played</span>
             </h2>
             {recentlyPlayed.length === 0 ? (
-              <Card className="bg-white border-2 border-gray-200 shadow-lg">
+              <Card className="bg-white border-2 border-blue-200 shadow-lg">
                 <CardContent className="p-12 text-center">
-                  <Music className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <Music className="w-16 h-16 text-blue-400 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-gray-600 mb-2">No Recent Activity</h3>
                   <p className="text-gray-500">
                     Recently played shows will appear here once schedule items are played.
@@ -633,10 +643,10 @@ export default function NewslineRadio() {
                 {recentlyPlayed.map((track, index) => (
                   <Card
                     key={index}
-                    className="bg-white border-2 border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300"
+                    className="bg-white border-2 border-blue-200 shadow-lg hover:shadow-xl transition-shadow duration-300"
                   >
                     <CardContent className="p-4 flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-red-600 flex items-center justify-center">
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-red-500 flex items-center justify-center">
                         <Music className="w-6 h-6 text-white" />
                       </div>
                       <div className="flex-1">
@@ -644,7 +654,7 @@ export default function NewslineRadio() {
                         <p className="text-sm text-gray-600">{track.artist}</p>
                       </div>
                       <div className="text-right">
-                        <div className="flex items-center space-x-1 text-red-600">
+                        <div className="flex items-center space-x-1 text-blue-600">
                           <Heart className="w-4 h-4" />
                           <span className="text-sm">{track.likes}</span>
                         </div>
