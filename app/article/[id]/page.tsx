@@ -27,20 +27,29 @@ export default function ArticlePage() {
 
   useEffect(() => {
     const fetchArticle = async () => {
-      if (!params.id) return
+      if (!params.id) {
+        console.log('No article ID provided')
+        setLoading(false)
+        return
+      }
+      
+      console.log('Fetching article with ID:', params.id)
       
       try {
         const docRef = doc(db, 'news', params.id as string)
         const docSnap = await getDoc(docRef)
         
         if (docSnap.exists()) {
+          console.log('Article found:', docSnap.data())
           setArticle({ id: docSnap.id, ...docSnap.data() } as Article)
         } else {
-          router.push('/')
+          console.log('Article not found, redirecting to home')
+          // Don't redirect immediately, show error instead
+          setArticle(null)
         }
       } catch (error) {
         console.error('Error fetching article:', error)
-        router.push('/')
+        setArticle(null)
       } finally {
         setLoading(false)
       }
@@ -68,15 +77,24 @@ export default function ArticlePage() {
     )
   }
 
-  if (!article) {
+  if (!loading && !article) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Article not found</h1>
-          <Button onClick={() => router.push('/')} variant="outline">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Article not found</h1>
+            <p className="text-gray-600 mb-6">
+              The article you're looking for doesn't exist or may have been moved.
+              <br />
+              <span className="text-sm text-gray-500 mt-2 block">
+                Article ID: {params.id}
+              </span>
+            </p>
+            <Button onClick={() => router.push('/')} className="bg-red-600 hover:bg-red-700 text-white">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Button>
+          </div>
         </div>
       </div>
     )
