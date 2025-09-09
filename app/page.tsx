@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import {
   Clock,
   Radio,
@@ -21,6 +22,7 @@ import Link from "next/link"
 import { getNews } from "@/lib/admin-utils"
 
 export default function NewslineRadio() {
+  const router = useRouter()
   const [currentTime, setCurrentTime] = useState(new Date())
   const [isLoading, setIsLoading] = useState(true)
 
@@ -287,7 +289,10 @@ export default function NewslineRadio() {
                             </>
                           )}
                         </div>
-                        <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 flex items-center space-x-2">
+                        <button 
+                          onClick={() => router.push(`/article/${article.id}`)}
+                          className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 flex items-center space-x-2"
+                        >
                           <span>Read More</span>
                           <span>→</span>
                         </button>
