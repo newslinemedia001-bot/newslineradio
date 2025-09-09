@@ -28,23 +28,17 @@ export default function ArticlePage() {
   useEffect(() => {
     const fetchArticle = async () => {
       if (!params.id) {
-        console.log('No article ID provided')
         setLoading(false)
         return
       }
-      
-      console.log('Fetching article with ID:', params.id)
       
       try {
         const docRef = doc(db, 'news', params.id as string)
         const docSnap = await getDoc(docRef)
         
         if (docSnap.exists()) {
-          console.log('Article found:', docSnap.data())
           setArticle({ id: docSnap.id, ...docSnap.data() } as Article)
         } else {
-          console.log('Article not found, redirecting to home')
-          // Don't redirect immediately, show error instead
           setArticle(null)
         }
       } catch (error) {

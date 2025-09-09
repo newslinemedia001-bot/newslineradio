@@ -143,12 +143,25 @@ export const deleteHost = async (id: string) => {
 export const getNews = async () => {
   try {
     const newsRef = collection(db, "news")
-    const q = query(newsRef, orderBy("timestamp", "desc"))
-    const querySnapshot = await getDocs(q)
+    // Try to get all documents first, then sort them client-side to handle different timestamp field names
+    const querySnapshot = await getDocs(newsRef)
 
     const news = []
     querySnapshot.forEach((doc) => {
-      news.push({ id: doc.id, ...doc.data() })
+      const data = doc.data()
+      news.push({ 
+        id: doc.id, 
+        ...data,
+        // Normalize timestamp field - use timestamp, publishedAt, or current time as fallback
+        sortTimestamp: data.timestamp || data.publishedAt || Date.now()
+      })
+    })
+
+    // Sort by timestamp descending (newest first)
+    news.sort((a, b) => {
+      const timeA = typeof a.sortTimestamp === 'number' ? a.sortTimestamp : new Date(a.sortTimestamp).getTime()
+      const timeB = typeof b.sortTimestamp === 'number' ? b.sortTimestamp : new Date(b.sortTimestamp).getTime()
+      return timeB - timeA
     })
 
     return news
