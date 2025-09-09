@@ -2,307 +2,56 @@
 
 import { useState, useEffect, useRef } from "react"
 import {
-  Calendar,
   Clock,
   Radio,
-  Users,
-  MessageCircle,
-  Heart,
-  Share2,
-  Mic,
-  Music,
-  TrendingUp,
-  Star,
-  Send,
-  Mail,
   Instagram,
   Twitter,
   Facebook,
   Youtube,
   Headphones,
   Zap,
-  Award,
   Rows as News,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 import Link from "next/link"
-import {
-  trackListener,
-  getStats,
-  toggleLike,
-  checkUserLike,
-  generateUserId,
-  sendChatMessage,
-  getChatMessages,
-  sendContactMessage,
-  generateRandomUsername,
-  decrementListener,
-  resetDailyStats,
-} from "@/lib/firebase-utils"
+// Firebase utils no longer needed for simplified version
 import { getNews } from "@/lib/admin-utils"
 
 export default function NewslineRadio() {
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [listeners, setListeners] = useState(0)
-  const [likes, setLikes] = useState(0)
-  const [peakListeners, setPeakListeners] = useState(0)
-  const [isLiked, setIsLiked] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [userId, setUserId] = useState("")
-  const [chatMessage, setChatMessage] = useState("")
-  const [chatMessages, setChatMessages] = useState([])
-  const [chatLoading, setChatLoading] = useState(false)
-  const [contactEmail, setContactEmail] = useState("")
-  const [contactMessage, setContactMessage] = useState("")
-  const [contactLoading, setContactLoading] = useState(false)
-  const [contactSuccess, setContactSuccess] = useState(false)
-  const [username, setUsername] = useState("")
-  const chatContainerRef = useRef(null)
 
   const [news, setNews] = useState([])
-  const [currentTrack, setCurrentTrack] = useState({
-    title: "Breaking News Theme",
-    artist: "Newsline Productions",
-    duration: 192, // in seconds
-    currentTime: 0,
-  })
 
   useEffect(() => {
-    const initializeUser = async () => {
+    const loadNews = async () => {
       try {
         setIsLoading(true)
-
-        let storedUserId = localStorage.getItem("newsline_user_id")
-        if (!storedUserId) {
-          storedUserId = generateUserId()
-          localStorage.setItem("newsline_user_id", storedUserId)
-        }
-        setUserId(storedUserId)
-
-        let storedUsername = localStorage.getItem("newsline_username")
-        if (!storedUsername) {
-          storedUsername = generateRandomUsername()
-          localStorage.setItem("newsline_username", storedUsername)
-        }
-        setUsername(storedUsername)
-
-        const sessionKey = `newsline_session_${storedUserId}_${Date.now()}`
-        const existingSession = sessionStorage.getItem("newsline_active_session")
-        const lastSessionUser = localStorage.getItem("newsline_last_session_user")
-
-        // Only track as new listener if it's a genuinely new session or different user
-        if (!existingSession || lastSessionUser !== storedUserId) {
-          console.log("[v0] New session detected, tracking listener")
-          sessionStorage.setItem("newsline_active_session", sessionKey)
-          localStorage.setItem("newsline_last_session_user", storedUserId)
-          await trackListener(storedUserId)
-        } else {
-          console.log("[v0] Existing session found, not incrementing listener count")
-          // Just refresh the session key without incrementing
-          sessionStorage.setItem("newsline_active_session", sessionKey)
-        }
-
-        const [statsData, newsData, messagesData] = await Promise.all([
-          getStats().catch(() => ({ currentListeners: 0, totalLikes24h: 0, peakListeners24h: 0 })),
-          getNews().catch(() => []),
-          getChatMessages().catch(() => []),
-        ])
-
-        setListeners(statsData.currentListeners || 0)
-        setLikes(statsData.totalLikes24h || 0)
+        const newsData = await getNews().catch(() => [])
         setNews(newsData)
-        setChatMessages(messagesData)
-
-
-        // Start with unliked state, let user like manually
-        setIsLiked(false)
       } catch (error) {
-        console.error("Error initializing user:", error)
+        console.error("Error loading news:", error)
       } finally {
         setIsLoading(false)
       }
     }
 
-    initializeUser()
-
-    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
-      console.log("[v0] User leaving, decrementing listener count")
-      const activeSession = sessionStorage.getItem("newsline_active_session")
-      if (activeSession) {
-        sessionStorage.removeItem("newsline_active_session")
-        localStorage.removeItem("newsline_last_session_user")
-        try {
-          // Use sendBeacon for more reliable cleanup
-          if (navigator.sendBeacon && userId) {
-            navigator.sendBeacon("/api/decrement-listener", JSON.stringify({ userId }))
-          } else if (userId) {
-            await decrementListener(userId)
-          }
-        } catch (error) {
-          console.error("Error decrementing listener:", error)
-        }
-      }
-    }
-
-    const handleVisibilityChange = async () => {
-      const activeSession = sessionStorage.getItem("newsline_active_session")
-      if (document.hidden && activeSession) {
-        console.log("[v0] Page hidden, decrementing listener count")
-        sessionStorage.removeItem("newsline_active_session")
-        localStorage.removeItem("newsline_last_session_user")
-        try {
-          if (userId) await decrementListener(userId)
-        } catch (error) {
-          console.error("Error decrementing listener:", error)
-        }
-      } else if (!document.hidden && !activeSession && userId) {
-        console.log("[v0] Page visible, tracking listener")
-        const newSessionKey = `newsline_session_${userId}_${Date.now()}`
-        sessionStorage.setItem("newsline_active_session", newSessionKey)
-        localStorage.setItem("newsline_last_session_user", userId)
-        try {
-          await trackListener(userId)
-        } catch (error) {
-          console.error("Error tracking listener:", error)
-        }
-      }
-    }
-
-    window.addEventListener("beforeunload", handleBeforeUnload)
-    document.addEventListener("visibilitychange", handleVisibilityChange)
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload)
-      document.removeEventListener("visibilitychange", handleVisibilityChange)
-      const activeSession = sessionStorage.getItem("newsline_active_session")
-      if (activeSession) {
-        sessionStorage.removeItem("newsline_active_session")
-        localStorage.removeItem("newsline_last_session_user")
-        if (userId) {
-          decrementListener(userId).catch(console.error)
-        }
-      }
-    }
-  }, [userId])
-
-  useEffect(() => {
-    const trackTimer = setInterval(() => {
-      setCurrentTrack((prev) => ({
-        ...prev,
-        currentTime: prev.currentTime >= prev.duration ? 0 : prev.currentTime + 1,
-      }))
-    }, 1000)
-
-    return () => clearInterval(trackTimer)
+    loadNews()
   }, [])
 
+
   useEffect(() => {
-    const timer = setInterval(async () => {
+    const timer = setInterval(() => {
       setCurrentTime(new Date())
-
-      try {
-        await resetDailyStats()
-        const stats = await getStats().catch(() => ({ currentListeners: 0, totalLikes24h: 0, peakListeners24h: 0 }))
-        setListeners(stats.currentListeners || 0)
-        setLikes(stats.totalLikes24h || 0)
-        setPeakListeners(stats.peakListeners24h || 0)
-
-        const messages = await getChatMessages().catch(() => [])
-        setChatMessages(messages)
-      } catch (error) {
-        console.error("Error fetching stats:", error)
-      }
-    }, 3000)
+    }, 1000)
 
     return () => clearInterval(timer)
   }, [])
 
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
-    }
-  }, [chatMessages])
 
-  const handleLike = async () => {
-    if (!userId || isLoading) return
-
-    try {
-      setIsLoading(true)
-      const newLikedState = await toggleLike(userId)
-      setIsLiked(newLikedState)
-
-      const freshStats = await getStats()
-      setLikes(freshStats.totalLikes24h || 0)
-
-      setIsLoading(false)
-    } catch (error) {
-      console.error("Error handling like:", error)
-      setIsLoading(false)
-    }
-  }
-
-  const handleSendMessage = async () => {
-    if (!chatMessage.trim() || chatLoading || !username) return
-
-    try {
-      setChatLoading(true)
-      const success = await sendChatMessage(username, chatMessage.trim())
-
-      if (success) {
-        setChatMessage("")
-        const messages = await getChatMessages()
-        setChatMessages(messages)
-      } else {
-        alert("Failed to send message. Please try again.")
-      }
-
-      setChatLoading(false)
-    } catch (error) {
-      console.error("Error sending message:", error)
-      setChatLoading(false)
-      alert("Failed to send message. Please try again.")
-    }
-  }
-
-  const handleSendContact = async () => {
-    if (!contactEmail.trim() || !contactMessage.trim() || contactLoading) return
-
-    try {
-      setContactLoading(true)
-      const success = await sendContactMessage(contactEmail.trim(), contactMessage.trim())
-
-      if (success) {
-        setContactEmail("")
-        setContactMessage("")
-        setContactSuccess(true)
-        setTimeout(() => setContactSuccess(false), 5000)
-      } else {
-        alert("Failed to send message. Please try again.")
-      }
-
-      setContactLoading(false)
-    } catch (error) {
-      console.error("Error sending contact message:", error)
-      setContactLoading(false)
-      alert("Failed to send message. Please try again.")
-    }
-  }
-
-  const handleKeyPress = (e, action) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      if (action === "chat") {
-        handleSendMessage()
-      } else if (action === "contact") {
-        handleSendContact()
-      }
-    }
-  }
 
   const displayNews = news.length > 0 ? news : []
 
@@ -321,11 +70,6 @@ export default function NewslineRadio() {
     return `${diffInDays}d ago`
   }
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, "0")}`
-  }
 
   return (
     <div className="min-h-screen bg-white text-black">
@@ -427,8 +171,8 @@ export default function NewslineRadio() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="md:col-span-2">
+            <div className="flex justify-center">
+              <div className="w-full max-w-4xl">
                 <Card className="bg-white border-2 border-blue-200 shadow-lg">
                   <CardContent className="p-8 space-y-6">
                     <div className="flex items-center justify-between">
@@ -437,31 +181,14 @@ export default function NewslineRadio() {
                           <Radio className="w-8 h-8 text-blue-600" />
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold text-black">Morning Newsline</h3>
-                          <p className="text-gray-600">with Sarah Johnson</p>
+                          <h3 className="text-xl font-bold text-black">Newsline Radio</h3>
+                          <p className="text-gray-600">Live Broadcasting 24/7</p>
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="text-lg font-medium text-blue-600">NOW STREAMING</div>
                         <div className="text-sm text-gray-600">Live Broadcast</div>
                       </div>
-                    </div>
-
-                    <div className="flex items-center justify-center space-x-6">
-                      <Button
-                        onClick={handleLike}
-                        disabled={isLoading}
-                        variant="ghost"
-                        size="lg"
-                        className={`${isLiked ? "text-blue-600" : "text-gray-600"} hover:text-blue-500 transition-colors ${isLoading ? "opacity-50" : ""}`}
-                      >
-                        <Heart className={`w-6 h-6 ${isLiked ? "fill-current" : ""}`} />
-                        <span className="ml-2">{isLoading ? "..." : likes}</span>
-                      </Button>
-
-                      <Button variant="ghost" size="lg" className="text-gray-600 hover:text-blue-500">
-                        <Share2 className="w-6 h-6" />
-                      </Button>
                     </div>
 
                     <div className="space-y-4">
@@ -491,58 +218,6 @@ export default function NewslineRadio() {
                           <span>Connected</span>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="space-y-4">
-                <Card className="bg-white border-2 border-blue-200 shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2 text-black">
-                      <Music className="w-5 h-5 text-blue-600" />
-                      <span>Now Playing</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-red-500 mx-auto mb-3 flex items-center justify-center">
-                        <Headphones className="w-8 h-8 text-white" />
-                      </div>
-                      <h4 className="font-semibold text-black">{currentTrack.title}</h4>
-                      <p className="text-sm text-gray-600">{currentTrack.artist}</p>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">{formatTime(currentTrack.currentTime)}</span>
-                      <span className="text-gray-600">{formatTime(currentTrack.duration)}</span>
-                    </div>
-                    <div className="w-full bg-gray-300 h-1">
-                      <div
-                        className="bg-gradient-to-r from-blue-600 to-red-500 h-1 transition-all duration-1000 ease-linear"
-                        style={{ width: `${(currentTrack.currentTime / currentTrack.duration) * 100}%` }}
-                      ></div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white border-2 border-blue-200 shadow-lg">
-                  <CardContent className="p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-black font-medium">Show Rating</span>
-                      <div className="flex items-center space-x-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="w-3 h-3 fill-blue-600 text-blue-600" />
-                        ))}
-                        <span className="text-sm text-blue-600 ml-1">4.9</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-black font-medium">Total Likes</span>
-                      <span className="text-blue-600 font-bold">{isLoading ? "..." : likes.toLocaleString()}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-black font-medium">Stream Quality</span>
-                      <span className="text-green-600 font-bold">HD Audio</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -607,125 +282,6 @@ export default function NewslineRadio() {
           </section>
 
 
-          <section>
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold mb-8 flex items-center justify-center space-x-2 text-black">
-                <Users className="w-8 h-8 text-red-600" />
-                <span>Community</span>
-              </h2>
-              <p className="text-gray-700 text-lg">Connect with fellow listeners and stay in touch</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card className="bg-white border-2 border-gray-200 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-black">
-                    <MessageCircle className="w-5 h-5 text-red-600" />
-                    <span>Live Chat</span>
-                    <Badge className="bg-red-600 text-white">{listeners} online</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div
-                    ref={chatContainerRef}
-                    className="h-64 overflow-y-auto space-y-3 bg-gray-50 rounded-lg p-4 border border-gray-200"
-                  >
-                    {chatMessages.length === 0 ? (
-                      <div className="text-center text-gray-600 py-8">
-                        <MessageCircle className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                        <p>No messages yet. Be the first to say hello!</p>
-                      </div>
-                    ) : (
-                      chatMessages.map((msg, index) => (
-                        <div key={msg.id || index} className="flex items-start space-x-2 animate-fade-in-up">
-                          <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                            {msg.username[0]?.toUpperCase()}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2">
-                              <span className="text-red-600 text-sm font-semibold">{msg.username}</span>
-                              <span className="text-xs text-gray-500">{msg.timeAgo}</span>
-                            </div>
-                            <p className="text-sm text-black">{msg.message}</p>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                  <div className="flex space-x-2">
-                    <Input
-                      placeholder={`Type your message as ${username}...`}
-                      value={chatMessage}
-                      onChange={(e) => setChatMessage(e.target.value)}
-                      onKeyPress={(e) => handleKeyPress(e, "chat")}
-                      className="bg-white border-gray-300"
-                      disabled={chatLoading}
-                    />
-                    <Button
-                      onClick={handleSendMessage}
-                      disabled={chatLoading || !chatMessage.trim()}
-                      className="bg-red-600 hover:bg-red-700"
-                    >
-                      {chatLoading ? (
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <Send className="w-4 h-4" />
-                      )}
-                    </Button>
-                  </div>
-                  <p className="text-xs text-gray-600">
-                    Chatting as: <span className="text-red-600 font-medium">{username}</span>
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white border-2 border-gray-200 shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2 text-black">
-                    <Mail className="w-5 h-5 text-red-600" />
-                    <span>Stay Connected</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {contactSuccess && (
-                    <div className="bg-green-100 border border-green-300 rounded-lg p-3 text-green-700 text-sm">
-                      ✓ Message sent successfully! We'll get back to you soon.
-                    </div>
-                  )}
-                  <Input
-                    type="email"
-                    placeholder="Your email address"
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    className="bg-white border-gray-300"
-                    disabled={contactLoading}
-                  />
-                  <Textarea
-                    placeholder="Your message or song request..."
-                    value={contactMessage}
-                    onChange={(e) => setContactMessage(e.target.value)}
-                    onKeyPress={(e) => handleKeyPress(e, "contact")}
-                    className="bg-white border-gray-300"
-                    disabled={contactLoading}
-                  />
-                  <Button
-                    onClick={handleSendContact}
-                    disabled={contactLoading || !contactEmail.trim() || !contactMessage.trim()}
-                    className="w-full bg-red-600 hover:bg-red-700"
-                  >
-                    {contactLoading ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                        Sending...
-                      </>
-                    ) : (
-                      "Send Message"
-                    )}
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </section>
         </main>
 
         <footer className="mt-16 bg-black border-t border-gray-700">
