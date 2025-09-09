@@ -44,7 +44,7 @@ import {
   decrementListener,
   resetDailyStats,
 } from "@/lib/firebase-utils"
-import { getSchedule, getHosts, getNews } from "@/lib/admin-utils"
+import { getNews } from "@/lib/admin-utils"
 
 export default function NewslineRadio() {
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -64,8 +64,6 @@ export default function NewslineRadio() {
   const [username, setUsername] = useState("")
   const chatContainerRef = useRef(null)
 
-  const [schedule, setSchedule] = useState([])
-  const [hosts, setHosts] = useState([])
   const [news, setNews] = useState([])
   const [currentTrack, setCurrentTrack] = useState({
     title: "Breaking News Theme",
@@ -73,7 +71,6 @@ export default function NewslineRadio() {
     duration: 192, // in seconds
     currentTime: 0,
   })
-  const [recentlyPlayed, setRecentlyPlayed] = useState([])
 
   useEffect(() => {
     const initializeUser = async () => {
@@ -110,24 +107,17 @@ export default function NewslineRadio() {
           sessionStorage.setItem("newsline_active_session", sessionKey)
         }
 
-        const [statsData, scheduleData, hostsData, newsData, messagesData] = await Promise.all([
+        const [statsData, newsData, messagesData] = await Promise.all([
           getStats().catch(() => ({ currentListeners: 0, totalLikes24h: 0, peakListeners24h: 0 })),
-          getSchedule().catch(() => []),
-          getHosts().catch(() => []),
           getNews().catch(() => []),
           getChatMessages().catch(() => []),
         ])
 
         setListeners(statsData.currentListeners || 0)
         setLikes(statsData.totalLikes24h || 0)
-        setPeakListeners(statsData.peakListeners24h || 0)
-        setSchedule(scheduleData)
-        setHosts(hostsData)
         setNews(newsData)
         setChatMessages(messagesData)
 
-        const recentlyPlayedData = generateRecentlyPlayed(scheduleData)
-        setRecentlyPlayed(recentlyPlayedData)
 
         // Start with unliked state, let user like manually
         setIsLiked(false)
@@ -314,86 +304,8 @@ export default function NewslineRadio() {
     }
   }
 
-  const getTodaysSchedule = () => {
-    const today = new Date().toISOString().split("T")[0]
-    const todaysSchedule = schedule.filter((item) => item.date === today)
-
-    if (todaysSchedule.length > 0) {
-      return todaysSchedule
-    }
-
-    const defaultSchedule = schedule.filter((item) => item.isDefault)
-    if (defaultSchedule.length > 0) {
-      return defaultSchedule
-    }
-
-    return []
-  }
-
-  const getTodaysHost = () => {
-    const today = new Date().toISOString().split("T")[0]
-    const now = new Date()
-    const currentTime = now.toTimeString().slice(0, 5) // HH:MM format
-
-    // Find host for current time today
-    const todaysHost = hosts.find(
-      (host) => host.date === today && host.startTime <= currentTime && host.endTime >= currentTime,
-    )
-
-    if (todaysHost) {
-      return [todaysHost]
-    }
-
-    // Fall back to default host
-    const defaultHost = hosts.find((host) => host.isDefault)
-    if (defaultHost) {
-      return [defaultHost]
-    }
-
-    return []
-  }
-
-  const displaySchedule = getTodaysSchedule()
-  const displayHosts = getTodaysHost()
   const displayNews = news.length > 0 ? news : []
 
-  const generateRecentlyPlayed = (scheduleData) => {
-    const now = new Date()
-    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000)
-
-    // Only show schedules that were played/passed within the last 24 hours
-    const recentFromSchedule = scheduleData
-      .filter((item) => {
-        if (!item.timestamp) return false
-        const itemTime = item.timestamp.toDate ? item.timestamp.toDate() : new Date(item.timestamp)
-        return itemTime >= twentyFourHoursAgo && itemTime <= now
-      })
-      .sort((a, b) => {
-        const timeA = a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp)
-        const timeB = b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp)
-        return timeB - timeA
-      })
-      .slice(0, 4)
-      .map((item) => ({
-        title: item.show || item.title,
-        artist: item.host || item.artist || "Newsline Productions",
-        time: getTimeAgo(item.timestamp.toDate ? item.timestamp.toDate() : new Date(item.timestamp)),
-        likes: Math.floor(Math.random() * 50) + 10,
-      }))
-
-    // If no recent schedules in past 24 hours, show default schedule data
-    if (recentFromSchedule.length === 0) {
-      const defaultSchedule = scheduleData.filter((item) => item.isDefault)
-      return defaultSchedule.slice(0, 4).map((item) => ({
-        title: item.show || item.title,
-        artist: item.host || item.artist || "Newsline Productions",
-        time: "Default Schedule",
-        likes: Math.floor(Math.random() * 50) + 10,
-      }))
-    }
-
-    return recentFromSchedule
-  }
 
   const getTimeAgo = (date) => {
     const now = new Date()
@@ -418,7 +330,7 @@ export default function NewslineRadio() {
   return (
     <div className="min-h-screen bg-white text-black">
       <div className="relative">
-        <header className="bg-black text-white p-6 shadow-md">
+        <header className="bg-black text-white p-8 shadow-md">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="flex items-center space-x-6">
               <div className="relative group">
@@ -426,8 +338,8 @@ export default function NewslineRadio() {
                   <Image
                     src="/newsline-logo.png"
                     alt="Newsline Media TV"
-                    width={140}
-                    height={70}
+                    width={180}
+                    height={90}
                     className="group-hover:opacity-80 transition-opacity duration-300 cursor-pointer"
                   />
                 </Link>
@@ -443,9 +355,9 @@ export default function NewslineRadio() {
             </div>
             
             {/* Animated Banner in Middle */}
-            <div className="hidden lg:block flex-1 mx-8">
-              <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-red-500 to-white rounded-lg shadow-lg border-2 border-white">
-                <div className="px-8 py-4">
+            <div className="hidden lg:block flex-1 mx-12">
+              <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-red-500 to-white rounded-lg shadow-lg border-2 border-white w-full">
+                <div className="px-12 py-5">
                   <div className="flex items-center justify-center space-x-4">
                     <div className="animate-pulse">
                       <Radio className="w-6 h-6 text-white" />
@@ -556,9 +468,10 @@ export default function NewslineRadio() {
                       <div className="relative bg-gray-900 rounded-lg p-4 shadow-lg border border-gray-300">
                         <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg opacity-95"></div>
                         <iframe
-                          src="https://a12.asurahosting.com/public/newsline/embed?theme=dark"
+                          src="https://a12.asurahosting.com/public/newsline/embed?theme=dark&autoplay=1"
                           frameBorder="0"
                           allowTransparency={true}
+                          allow="autoplay"
                           className="w-full min-h-[180px] border-0 relative z-10 bg-transparent"
                           title="Newsline Radio Player"
                           style={{
@@ -639,221 +552,51 @@ export default function NewslineRadio() {
 
           <section>
             <h2 className="text-3xl font-bold mb-8 flex items-center space-x-2 text-black">
-              <TrendingUp className="w-8 h-8 text-blue-600" />
-              <span>Recently Played</span>
+              <News className="w-8 h-8 text-blue-600" />
+              <span>Latest News</span>
             </h2>
-            {recentlyPlayed.length === 0 ? (
+            
+            {displayNews.length === 0 ? (
               <Card className="bg-white border-2 border-blue-200 shadow-lg">
                 <CardContent className="p-12 text-center">
-                  <Music className="w-16 h-16 text-blue-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-600 mb-2">No Recent Activity</h3>
+                  <News className="w-16 h-16 text-blue-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">No News Articles</h3>
                   <p className="text-gray-500">
-                    Recently played shows will appear here once schedule items are played.
+                    Latest news articles will appear here once they are published.
                   </p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2">
-                {recentlyPlayed.map((track, index) => (
-                  <Card
-                    key={index}
-                    className="bg-white border-2 border-blue-200 shadow-lg hover:shadow-xl transition-shadow duration-300"
-                  >
-                    <CardContent className="p-4 flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-red-500 flex items-center justify-center">
-                        <Music className="w-6 h-6 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-black">{track.title}</h4>
-                        <p className="text-sm text-gray-600">{track.artist}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="flex items-center space-x-1 text-blue-600">
-                          <Heart className="w-4 h-4" />
-                          <span className="text-sm">{track.likes}</span>
-                        </div>
-                        <p className="text-xs text-gray-500">{track.time}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </section>
-
-          <section>
-            <div className="text-center space-y-2 mb-8">
-              <h2 className="text-4xl font-bold mb-8 flex items-center space-x-2">
-                <Calendar className="w-8 h-8 text-red-500" />
-                <span className="text-black">Today's Schedule</span>
-              </h2>
-            </div>
-
-            {displaySchedule.length === 0 ? (
-              <Card className="backdrop-blur-lg bg-white/5 border-blue-500/20">
-                <CardContent className="p-12 text-center">
-                  <Calendar className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-400 mb-2">No Schedule Available</h3>
-                  <p className="text-gray-500">No schedule found for today and no default schedule configured.</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {displaySchedule.map((item, index) => (
-                  <Card
-                    key={item.id || index}
-                    className={`backdrop-blur-lg border-red-500/20 hover:bg-white/10 transition-all duration-300 transform hover:scale-105 animate-fade-in-up ${
-                      item.status === "live" ? "bg-red-900/20 border-red-500/50" : "bg-white/90"
-                    }`}
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    <CardContent className="p-6 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2 text-red-500 font-mono text-sm font-semibold">
-                          <Clock className="w-4 h-4" />
-                          <span>
-                            {item.startTime && item.endTime ? `${item.startTime} - ${item.endTime}` : item.time}
-                          </span>
-                        </div>
-                        {item.status === "live" && (
-                          <Badge className="bg-red-600 text-white animate-pulse">
-                            <Radio className="w-3 h-3 mr-1" />
-                            LIVE
-                          </Badge>
-                        )}
-                      </div>
-                      <h3 className="text-lg font-semibold text-black">{item.show}</h3>
-                      <p className="text-gray-700 text-sm font-medium">Hosted by {item.host}</p>
-                      {item.status === "live" && (
-                        <div className="flex items-center space-x-2 text-red-500">
-                          <Users className="w-4 h-4" />
-                          <span className="text-sm font-medium">
-                            {(item.listeners || listeners).toLocaleString()} listening
-                          </span>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </section>
-
-          <section>
-            <div className="text-center space-y-2 mb-8">
-              <h2 className="text-4xl font-bold mb-8 flex items-center space-x-2">
-                <Mic className="w-8 h-8 text-red-500" />
-                <span className="text-black">Current Host</span>
-              </h2>
-              <p className="text-gray-700">Meet the voice behind Newline Radio right now</p>
-            </div>
-
-            {displayHosts.length === 0 ? (
-              <Card className="backdrop-blur-lg bg-white/5 border-blue-500/20">
-                <CardContent className="p-12 text-center">
-                  <Mic className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-400 mb-2">No Host Available</h3>
-                  <p className="text-gray-500">No host scheduled for this time and no default host configured.</p>
-                </CardContent>
-              </Card>
-            ) : (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {displayHosts.map((dj, index) => (
+                {displayNews.map((article, index) => (
                   <Card
-                    key={dj.id || index}
-                    className="backdrop-blur-lg bg-white/90 border-red-500/20 hover:bg-white/95 transition-all duration-300 transform hover:scale-105 animate-fade-in-up"
-                    style={{ animationDelay: `${index * 150}ms` }}
+                    key={article.id || index}
+                    className="bg-white border-2 border-blue-200 shadow-lg hover:shadow-xl transition-all duration-300 group"
                   >
-                    <CardContent className="p-6 text-center space-y-4">
-                      <div className="relative">
-                        <Image
-                          src={dj.image || "/placeholder.svg"}
-                          alt={dj.name}
-                          width={80}
-                          height={80}
-                          className="rounded-full mx-auto border-4 border-red-500/30"
+                    {article.imageUrl && (
+                      <div className="relative overflow-hidden">
+                        <img
+                          src={article.imageUrl}
+                          alt={article.title}
+                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                         />
-                        <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center">
-                          <Award className="w-3 h-3" />
-                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-black">{dj.name}</h3>
-                        <p className="text-red-500 font-medium">{dj.show}</p>
-                        {dj.startTime && dj.endTime && (
-                          <p className="text-sm text-gray-700 font-medium">
-                            {dj.startTime} - {dj.endTime}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-center space-x-4 text-sm">
-                        <div className="flex items-center space-x-1">
-                          <Users className="w-4 h-4 text-red-500" />
-                          <span className="text-black font-medium">{dj.followers}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Star className="w-4 h-4 fill-red-500 text-red-500" />
-                          <span className="text-black font-medium">{dj.rating || 4.5}</span>
-                        </div>
-                      </div>
-                      <Button className="w-full bg-red-600 hover:bg-red-700">Follow Host</Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </section>
-
-          <section>
-            <div className="text-center space-y-2 mb-8">
-              <h2 className="text-4xl font-bold mb-8 flex items-center space-x-2">
-                <News className="w-8 h-8 text-red-500" />
-                <span className="text-black">Latest Updates</span>
-              </h2>
-            </div>
-
-            {displayNews.length === 0 ? (
-              <Card className="backdrop-blur-lg bg-white/5 border-blue-500/20">
-                <CardContent className="p-12 text-center">
-                  <News className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-400 mb-2">No News Available</h3>
-                  <p className="text-gray-500">Latest news updates will appear here once configured by admin.</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2">
-                {displayNews.map((newsItem, index) => (
-                  <Card
-                    key={newsItem.id || index}
-                    className="backdrop-blur-lg bg-white/90 border-red-500/20 hover:bg-white/95 transition-all duration-300 animate-fade-in-up"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
+                    )}
                     <CardContent className="p-6 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <Badge variant="secondary" className="bg-red-600/20 text-red-600 font-medium">
-                          {newsItem.category}
-                        </Badge>
-                        <span className="text-sm text-gray-700 font-medium">
-                          {newsItem.timestamp?.toDate?.()?.toLocaleDateString() || newsItem.time || "Recently"}
-                        </span>
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <span>{article.category || "General"}</span>
+                        <span>{new Date(article.publishedAt || Date.now()).toLocaleDateString()}</span>
                       </div>
-                      <h3 className="text-lg font-semibold text-black hover:text-red-500 cursor-pointer transition-colors">
-                        {newsItem.url ? (
-                          <a href={newsItem.url} target="_blank" rel="noopener noreferrer">
-                            {newsItem.title}
-                          </a>
-                        ) : (
-                          newsItem.title
-                        )}
+                      <h3 className="text-lg font-bold text-black group-hover:text-blue-600 transition-colors duration-300 line-clamp-2">
+                        {article.title}
                       </h3>
-                      <div className="flex items-center justify-center space-x-4 text-sm text-gray-700">
-                        <button className="flex items-center space-x-1 hover:text-red-500 font-medium">
-                          <Heart className="w-4 h-4" />
-                          <span>Like</span>
-                        </button>
-                        <button className="flex items-center space-x-1 hover:text-red-500 font-medium">
-                          <Share2 className="w-4 h-4" />
-                          <span>Share</span>
+                      <p className="text-gray-600 text-sm line-clamp-3">
+                        {article.excerpt || article.content?.replace(/<[^>]*>/g, '').substring(0, 150) + '...'}
+                      </p>
+                      <div className="flex items-center justify-between pt-2">
+                        <span className="text-xs text-gray-500">By {article.author || "Newsline Team"}</span>
+                        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-300">
+                          Read More →
                         </button>
                       </div>
                     </CardContent>
@@ -862,6 +605,7 @@ export default function NewslineRadio() {
               </div>
             )}
           </section>
+
 
           <section>
             <div className="text-center mb-12">
