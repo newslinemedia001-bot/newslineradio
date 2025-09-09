@@ -5,6 +5,7 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  setDoc,
   query,
   orderBy,
   where,
@@ -174,10 +175,22 @@ export const getNews = async () => {
 export const addNews = async (newsData: any) => {
   try {
     const newsRef = collection(db, "news")
-    await addDoc(newsRef, {
-      ...newsData,
-      timestamp: serverTimestamp(),
-    })
+    
+    // If newsData has a custom ID, use setDoc to preserve it
+    if (newsData.id) {
+      const docRef = doc(db, "news", newsData.id)
+      await setDoc(docRef, {
+        ...newsData,
+        // Keep the existing timestamp if provided, otherwise use serverTimestamp
+        timestamp: newsData.timestamp || serverTimestamp(),
+      })
+    } else {
+      // Use addDoc for articles without custom IDs
+      await addDoc(newsRef, {
+        ...newsData,
+        timestamp: serverTimestamp(),
+      })
+    }
     return true
   } catch (error) {
     console.error("Error adding news:", error)
