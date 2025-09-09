@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-// Cloudinary upload function with better error handling
+import crypto from 'crypto'
+
+// Generate Cloudinary signature for secure uploads
+function generateSignature(timestamp: number, folder: string, apiSecret: string): string {
+  const paramsToSign = `folder=${folder}&timestamp=${timestamp}`
+  return crypto
+    .createHash('sha1')
+    .update(paramsToSign + apiSecret)
+    .digest('hex')
+}
+
+// Cloudinary upload function with signed upload (no preset needed)
 async function uploadToCloudinaryDirect(buffer: Buffer): Promise<string> {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME
   const apiKey = process.env.CLOUDINARY_API_KEY
@@ -10,10 +21,16 @@ async function uploadToCloudinaryDirect(buffer: Buffer): Promise<string> {
     throw new Error('Cloudinary configuration is missing')
   }
 
+  const timestamp = Math.round(Date.now() / 1000)
+  const folder = 'newsline-articles'
+  const signature = generateSignature(timestamp, folder, apiSecret)
+
   const formData = new FormData()
   formData.append('file', new Blob([buffer]))
-  formData.append('upload_preset', 'ml_default') // Use unsigned preset
-  formData.append('folder', 'newsline-articles')
+  formData.append('api_key', apiKey)
+  formData.append('timestamp', timestamp.toString())
+  formData.append('signature', signature)
+  formData.append('folder', folder)
 
   try {
     const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
@@ -29,7 +46,7 @@ async function uploadToCloudinaryDirect(buffer: Buffer): Promise<string> {
     const data = await response.json()
     return data.secure_url
   } catch (error) {
-    console.error('Cloudinary direct upload error:', error)
+    console.error('Cloudinary signed upload error:', error)
     throw error
   }
 }
