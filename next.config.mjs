@@ -27,13 +27,13 @@ const nextConfig = {
             key: 'X-Frame-Options',
             value: 'ALLOWALL',
           },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
         ],
       },
     ]
-  },
-  // Configure for Replit development environment
-  devOptions: {
-    hostname: '0.0.0.0',
   },
 }
 

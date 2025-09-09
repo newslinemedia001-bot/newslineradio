@@ -67,10 +67,7 @@ export default function ArticleEditor({ onSave, initialData, onCancel }: Article
     },
   })
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0]
-    if (!file) return
-
+  const uploadImage = useCallback(async (file: File, setAsFeatured: boolean = false) => {
     setUploading(true)
     try {
       const formData = new FormData()
@@ -81,19 +78,41 @@ export default function ArticleEditor({ onSave, initialData, onCancel }: Article
         body: formData,
       })
       
-      if (response.ok) {
-        const data = await response.json()
-        if (featuredImage === '') {
-          setFeaturedImage(data.url)
-        }
-        editor?.chain().focus().setImage({ src: data.url }).run()
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Upload failed')
       }
+
+      const data = await response.json()
+      
+      // Set as featured image if no featured image exists or if explicitly requested
+      if (setAsFeatured || featuredImage === '') {
+        setFeaturedImage(data.url)
+      }
+      
+      // Insert image at current cursor position
+      editor?.chain().focus().setImage({ 
+        src: data.url,
+        alt: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension for alt text
+        title: file.name.replace(/\.[^/.]+$/, ''),
+      }).run()
+      
+      return data.url
     } catch (error) {
       console.error('Upload failed:', error)
+      alert(`Upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      return null
     } finally {
       setUploading(false)
     }
   }, [editor, featuredImage])
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0]
+    if (!file) return
+    
+    await uploadImage(file, false)
+  }, [uploadImage])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -196,9 +215,78 @@ export default function ArticleEditor({ onSave, initialData, onCancel }: Article
             />
           </div>
 
+          {/* Featured Image Preview */}
+          {featuredImage && (
+            <div>
+              <label className="block text-sm font-medium mb-2">Featured Image Preview</label>
+              <div className="relative inline-block">
+                <img 
+                  src={featuredImage} 
+                  alt="Featured image preview" 
+                  className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-300"
+                />
+                <button
+                  onClick={() => setFeaturedImage('')}
+                  className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm"
+                  title="Remove featured image"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Image Upload Area */}
           <div>
             <label className="block text-sm font-medium mb-2">Upload Images</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <Button
+                type="button"
+                onClick={() => document.getElementById('featured-image-upload')?.click()}
+                variant="outline"
+                className="flex items-center space-x-2"
+                disabled={uploading}
+              >
+                <ImageIcon className="w-4 h-4" />
+                <span>Set Featured Image</span>
+              </Button>
+              <Button
+                type="button"
+                onClick={() => document.getElementById('content-image-upload')?.click()}
+                variant="outline"
+                className="flex items-center space-x-2"
+                disabled={uploading}
+              >
+                <ImageIcon className="w-4 h-4" />
+                <span>Add Image to Content</span>
+              </Button>
+            </div>
+            <input
+              id="featured-image-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  await uploadImage(file, true)
+                  e.target.value = '' // Reset input
+                }
+              }}
+            />
+            <input
+              id="content-image-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  await uploadImage(file, false)
+                  e.target.value = '' // Reset input
+                }
+              }}
+            />
             <div
               {...getRootProps()}
               className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
@@ -206,7 +294,7 @@ export default function ArticleEditor({ onSave, initialData, onCancel }: Article
               } ${uploading ? 'opacity-50' : ''}`}
             >
               <input {...getInputProps()} />
-              <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
               <p className="text-sm text-gray-600">
                 {uploading ? 'Uploading...' : 'Drag & drop images here, or click to select'}
               </p>
