@@ -17,6 +17,24 @@ const nextConfig = {
       },
     ]
   },
+  // Allow all hosts for Replit proxy environment
+  experimental: {
+    allowedOrigins: ["*"],
+  },
+  // Configure development server for Replit environment
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'ALLOWALL',
+          },
+        ],
+      },
+    ]
+  },
 }
 
 export default nextConfig
