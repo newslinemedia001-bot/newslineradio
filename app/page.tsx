@@ -242,36 +242,54 @@ export default function NewslineRadio() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {displayNews.map((article, index) => (
                   <Card
                     key={article.id || index}
-                    className="bg-white border-2 border-blue-200 shadow-lg hover:shadow-xl transition-all duration-300 group"
+                    className="bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden"
                   >
                     {article.imageUrl && (
-                      <div className="relative overflow-hidden">
+                      <div className="relative overflow-hidden h-48">
                         <img
                           src={article.imageUrl}
                           alt={article.title}
-                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
+                        <div className="absolute top-3 left-3">
+                          <span className="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide">
+                            {article.category || "General"}
+                          </span>
+                        </div>
                       </div>
                     )}
-                    <CardContent className="p-6 space-y-3">
-                      <div className="flex items-center justify-between text-sm text-gray-500">
-                        <span>{article.category || "General"}</span>
-                        <span>{new Date(article.publishedAt || Date.now()).toLocaleDateString()}</span>
-                      </div>
-                      <h3 className="text-lg font-bold text-black group-hover:text-blue-600 transition-colors duration-300 line-clamp-2">
+                    <CardContent className="p-6 space-y-4">
+                      {!article.imageUrl && (
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wide">
+                            {article.category || "General"}
+                          </span>
+                          <span className="text-gray-500">{new Date(article.publishedAt || Date.now()).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                      <h3 className="text-xl font-bold text-black group-hover:text-red-600 transition-colors duration-300 leading-tight">
                         {article.title}
                       </h3>
-                      <p className="text-gray-600 text-sm line-clamp-3">
+                      <p className="text-gray-600 leading-relaxed line-clamp-3">
                         {article.excerpt || article.content?.replace(/<[^>]*>/g, '').substring(0, 150) + '...'}
                       </p>
-                      <div className="flex items-center justify-between pt-2">
-                        <span className="text-xs text-gray-500">By {article.author || "Newsline Team"}</span>
-                        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-300">
-                          Read More →
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <div className="flex items-center space-x-1 text-sm text-gray-500">
+                          <span>By {article.author || "Newsline Team"}</span>
+                          {article.imageUrl && (
+                            <>
+                              <span>•</span>
+                              <span>{new Date(article.publishedAt || Date.now()).toLocaleDateString()}</span>
+                            </>
+                          )}
+                        </div>
+                        <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 flex items-center space-x-2">
+                          <span>Read More</span>
+                          <span>→</span>
                         </button>
                       </div>
                     </CardContent>
