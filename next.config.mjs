@@ -31,9 +31,9 @@ const nextConfig = {
       },
     ]
   },
-  // Allow all hosts in development for Replit proxy
-  experimental: {
-    allowedOrigins: ['*'],
+  // Configure for Replit development environment
+  devOptions: {
+    hostname: '0.0.0.0',
   },
 }
 
