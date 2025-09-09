@@ -5,7 +5,6 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-  setDoc,
   query,
   orderBy,
   where,
@@ -144,25 +143,12 @@ export const deleteHost = async (id: string) => {
 export const getNews = async () => {
   try {
     const newsRef = collection(db, "news")
-    // Try to get all documents first, then sort them client-side to handle different timestamp field names
-    const querySnapshot = await getDocs(newsRef)
+    const q = query(newsRef, orderBy("timestamp", "desc"))
+    const querySnapshot = await getDocs(q)
 
     const news = []
     querySnapshot.forEach((doc) => {
-      const data = doc.data()
-      news.push({ 
-        id: doc.id, 
-        ...data,
-        // Normalize timestamp field - use timestamp, publishedAt, or current time as fallback
-        sortTimestamp: data.timestamp || data.publishedAt || Date.now()
-      })
-    })
-
-    // Sort by timestamp descending (newest first)
-    news.sort((a, b) => {
-      const timeA = typeof a.sortTimestamp === 'number' ? a.sortTimestamp : new Date(a.sortTimestamp).getTime()
-      const timeB = typeof b.sortTimestamp === 'number' ? b.sortTimestamp : new Date(b.sortTimestamp).getTime()
-      return timeB - timeA
+      news.push({ id: doc.id, ...doc.data() })
     })
 
     return news
@@ -175,22 +161,10 @@ export const getNews = async () => {
 export const addNews = async (newsData: any) => {
   try {
     const newsRef = collection(db, "news")
-    
-    // If newsData has a custom ID, use setDoc to preserve it
-    if (newsData.id) {
-      const docRef = doc(db, "news", newsData.id)
-      await setDoc(docRef, {
-        ...newsData,
-        // Keep the existing timestamp if provided, otherwise use serverTimestamp
-        timestamp: newsData.timestamp || serverTimestamp(),
-      })
-    } else {
-      // Use addDoc for articles without custom IDs
-      await addDoc(newsRef, {
-        ...newsData,
-        timestamp: serverTimestamp(),
-      })
-    }
+    await addDoc(newsRef, {
+      ...newsData,
+      timestamp: serverTimestamp(),
+    })
     return true
   } catch (error) {
     console.error("Error adding news:", error)

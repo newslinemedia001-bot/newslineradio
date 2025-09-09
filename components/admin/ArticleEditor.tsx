@@ -142,20 +142,15 @@ export default function ArticleEditor({ onSave, initialData, onCancel }: Article
       return
     }
 
-    // Create timestamp for consistent ordering with existing articles
-    const timestamp = Date.now()
-    
     const article = {
-      id: initialData?.id || timestamp.toString(),
       title: title.trim(),
       content: editor.getHTML(),
       excerpt: excerpt.trim() || editor.getText().substring(0, 150) + '...',
       category: category.trim(),
       author: author.trim(),
       imageUrl: featuredImage,
-      publishedAt: initialData?.publishedAt || timestamp,
-      updatedAt: timestamp,
-      timestamp: timestamp, // Add this field for consistent ordering
+      publishedAt: initialData?.publishedAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     }
 
     onSave(article)
