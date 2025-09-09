@@ -31,6 +31,10 @@ const nextConfig = {
       },
     ]
   },
+  // Allow all hosts in development for Replit proxy
+  experimental: {
+    allowedOrigins: ['*'],
+  },
 }
 
 export default nextConfig
