@@ -1,0 +1,74 @@
+my-v0-project@0.1.0 build /opt/build/repo
+10:14:40 PM: > next build
+10:14:41 PM:    ▲ Next.js 15.2.4
+10:14:41 PM:    Creating an optimized production build ...
+10:14:47 PM: Failed to compile.
+10:14:47 PM: 
+10:14:47 PM: ./app/article/[id]/page.tsx
+10:14:47 PM: Error:   x Expression expected
+10:14:47 PM:      ,-[/opt/build/repo/app/article/[id]/page.tsx:102:1]
+10:14:47 PM:   99 |   }
+10:14:47 PM:  100 |
+10:14:47 PM:  101 |   return (
+10:14:47 PM:  102 |     <>
+10:14:47 PM:      :      ^
+10:14:47 PM:  103 |       {/* JSON-LD Structured Data for SEO and Google News */}
+10:14:47 PM:  104 |       <JsonLdNewsArticle article={article} />
+10:14:47 PM:  105 |
+10:14:47 PM:      `----
+  x Expected ',', got '< (jsx tag start)'
+     ,-[/opt/build/repo/app/article/[id]/page.tsx:104:1]
+ 101 |   return (
+ 102 |     <>
+ 103 |       {/* JSON-LD Structured Data for SEO and Google News */}
+ 104 |       <JsonLdNewsArticle article={article} />
+     :       ^
+ 105 |       
+ 106 |       <div className="min-h-screen bg-gray-50">
+ 107 |         <div className="max-w-4xl mx-auto px-6 py-12">
+     `----
+10:14:47 PM: Caused by:
+10:14:47 PM:     Syntax Error
+10:14:47 PM: Import trace for requested module:
+10:14:47 PM: ./app/article/[id]/page.tsx
+10:14:47 PM: > Build failed because of webpack errors
+10:14:47 PM:  ELIFECYCLE  Command failed with exit code 1. (https://ntl.fyi/exit-code-1)
+10:14:47 PM: ​
+10:14:47 PM: "build.command" failed                                        
+10:14:47 PM: ────────────────────────────────────────────────────────────────
+10:14:47 PM: ​
+10:14:47 PM:   Error message
+10:14:47 PM:   Command failed with exit code 1: pnpm run build (https://ntl.fyi/exit-code-1)
+10:14:47 PM: ​
+10:14:47 PM:   Error location
+10:14:47 PM:   In Build command from Netlify app:
+10:14:47 PM:   pnpm run build
+10:14:47 PM: ​
+10:14:47 PM:   Resolved config
+10:14:47 PM:   build:
+10:14:47 PM:     command: pnpm run build
+10:14:47 PM:     commandOrigin: ui
+10:14:47 PM:     environment:
+10:14:47 PM:       - CLOUDINARY_API_KEY
+10:14:47 PM:       - CLOUDINARY_API_SECRET
+10:14:47 PM:       - CLOUDINARY_CLOUD_NAME
+10:14:47 PM:       - NEXT_PUBLIC_ADMIN_PASSWORD
+10:14:47 PM:       - NEXT_PUBLIC_ADMIN_USERNAME
+10:14:47 PM:       - NEXT_PUBLIC_FIREBASE_API_KEY
+10:14:47 PM:       - NEXT_PUBLIC_FIREBASE_APP_ID
+10:14:47 PM:       - NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+10:14:47 PM:       - NEXT_PUBLIC_FIREBASE_DATABASE_URL
+10:14:47 PM:       - NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+10:14:47 PM:       - NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+10:14:47 PM:       - NEXT_PUBLIC_FIREBASE_PROJECT_ID
+10:14:47 PM:       - NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+10:14:47 PM:     publish: /opt/build/repo/.next
+10:14:47 PM:     publishOrigin: ui
+10:14:47 PM:   plugins:
+10:14:47 PM:     - inputs: {}
+10:14:47 PM:       origin: ui
+10:14:47 PM:       package: "@netlify/plugin-nextjs"
+10:14:47 PM: Build failed due to a user error: Build script returned non-zero exit code: 2
+10:14:48 PM: Failed during stage 'building site': Build script returned non-zero exit code: 2 (https://ntl.fyi/exit-code-2)
+10:14:48 PM: Failing build: Failed to build site
+10:14:49 PM: Finished processing build request in 31.724s

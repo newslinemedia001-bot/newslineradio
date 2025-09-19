@@ -99,7 +99,7 @@ export default async function ArticlePage({ params }: PageProps) {
   }
 
   return (
-    <>
+    <div>
       {/* JSON-LD Structured Data for SEO and Google News */}
       <JsonLdNewsArticle article={article} />
       
@@ -189,6 +189,6 @@ export default async function ArticlePage({ params }: PageProps) {
           </Link>
         </div>
       </div>
-    </>
+    </div>
   )
 }
