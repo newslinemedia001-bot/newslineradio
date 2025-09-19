@@ -5,6 +5,7 @@ import { Calendar, User, Tag } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
+import JsonLdNewsArticle from '@/components/JsonLdNewsArticle'
 
 interface PageProps {
   params: { id: string }
@@ -13,11 +14,22 @@ interface PageProps {
 // Generate SEO metadata for each article (critical for SEO)
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const article = await getArticleById(params.id)
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+  
+  if (!baseUrl) {
+    console.error('NEXT_PUBLIC_BASE_URL environment variable is not set. This may cause SEO issues.')
+  }
+  
+  const resolvedBaseUrl = baseUrl || 'https://newsline-radio.replit.app'
+  const articleUrl = `${resolvedBaseUrl}/article/${params.id}`
   
   if (!article) {
     return {
       title: 'Article Not Found | Newsline Radio',
       description: 'The requested article could not be found.',
+      alternates: {
+        canonical: articleUrl,
+      },
     }
   }
 
@@ -28,21 +40,51 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${article.title} | Newsline Radio`,
     description,
-    keywords: `${article.category}, news, radio, broadcasting, ${article.author}`,
+    keywords: `${article.category}, news, radio, broadcasting, ${article.author}, newsline radio`,
     authors: [{ name: article.author }],
+    alternates: {
+      canonical: articleUrl,
+    },
     openGraph: {
       title: article.title,
       description,
       type: 'article',
       publishedTime: new Date(article.publishedAt).toISOString(),
+      modifiedTime: new Date(article.publishedAt).toISOString(),
       authors: [article.author],
-      images: article.imageUrl ? [{ url: article.imageUrl, alt: article.title }] : undefined,
+      section: article.category,
+      tags: [article.category, 'news', 'radio'],
+      url: articleUrl,
+      siteName: 'Newsline Radio',
+      locale: 'en_US',
+      images: article.imageUrl ? [{
+        url: article.imageUrl,
+        alt: article.title,
+        width: 1200,
+        height: 630,
+        type: 'image/jpeg'
+      }] : [{
+        url: `${resolvedBaseUrl}/placeholder.jpg`,
+        alt: 'Newsline Radio Default Image',
+        width: 1200,
+        height: 630
+      }],
     },
     twitter: {
       card: 'summary_large_image',
+      site: '@newslinemediatv',
+      creator: '@newslinemediatv',
       title: article.title,
       description,
-      images: article.imageUrl ? [article.imageUrl] : undefined,
+      images: article.imageUrl ? [article.imageUrl] : [`${resolvedBaseUrl}/placeholder.jpg`],
+    },
+    other: {
+      'news_keywords': `${article.category}, ${article.author}, newsline radio`,
+      'article:published_time': new Date(article.publishedAt).toISOString(),
+      'article:modified_time': new Date(article.publishedAt).toISOString(),
+      'article:author': article.author,
+      'article:section': article.category,
+      'article:tag': article.category,
     },
   }
 }
@@ -57,8 +99,12 @@ export default async function ArticlePage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-6 py-12">
+    <>
+      {/* JSON-LD Structured Data for SEO and Google News */}
+      <JsonLdNewsArticle article={article} />
+      
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Back Button */}
         <Link href="/" className="inline-block mb-8">
           <Button variant="ghost" className="hover:bg-gray-200">
@@ -143,6 +189,6 @@ export default async function ArticlePage({ params }: PageProps) {
           </Link>
         </div>
       </div>
-    </div>
+    </>
   )
 }
