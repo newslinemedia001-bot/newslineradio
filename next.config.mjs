@@ -9,14 +9,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  async rewrites() {
-    return [
-      {
-        source: '/:path*',
-        destination: '/:path*',
-      },
-    ]
-  },
   // Configure development server for Replit environment
   async headers() {
     return [
@@ -30,6 +22,10 @@ const nextConfig = {
           {
             key: 'Access-Control-Allow-Origin',
             value: '*',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
           },
         ],
       },
