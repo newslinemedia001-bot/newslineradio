@@ -1,111 +1,71 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { doc, getDoc } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
+import { getArticleById, Article } from '@/lib/firebase-utils'
+import { Calendar, User, Tag } from 'lucide-react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Calendar, User, Tag } from 'lucide-react'
-import { Skeleton } from '@/components/ui/skeleton'
+import { ArrowLeft } from 'lucide-react'
 
-interface Article {
-  id: string
-  title: string
-  content: string
-  excerpt: string
-  author: string
-  category: string
-  publishedAt: number
-  imageUrl?: string
+interface PageProps {
+  params: { id: string }
 }
 
-export default function ArticlePage() {
-  const params = useParams()
-  const router = useRouter()
-  const [article, setArticle] = useState<Article | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchArticle = async () => {
-      if (!params.id) {
-        setLoading(false)
-        return
-      }
-      
-      try {
-        const docRef = doc(db, 'news', params.id as string)
-        const docSnap = await getDoc(docRef)
-        
-        if (docSnap.exists()) {
-          setArticle({ id: docSnap.id, ...docSnap.data() } as Article)
-        } else {
-          setArticle(null)
-        }
-      } catch (error) {
-        console.error('Error fetching article:', error)
-        setArticle(null)
-      } finally {
-        setLoading(false)
-      }
+// Generate SEO metadata for each article (critical for SEO)
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const article = await getArticleById(params.id)
+  
+  if (!article) {
+    return {
+      title: 'Article Not Found | Newsline Radio',
+      description: 'The requested article could not be found.',
     }
-
-    fetchArticle()
-  }, [params.id, router])
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto px-6 py-12">
-          <Skeleton className="h-8 w-32 mb-8" />
-          <Skeleton className="h-64 w-full mb-8 rounded-lg" />
-          <Skeleton className="h-12 w-full mb-4" />
-          <Skeleton className="h-4 w-3/4 mb-2" />
-          <Skeleton className="h-4 w-1/2 mb-8" />
-          <div className="space-y-4">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-          </div>
-        </div>
-      </div>
-    )
   }
 
-  if (!loading && !article) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-8">
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Article not found</h1>
-            <p className="text-gray-600 mb-6">
-              The article you're looking for doesn't exist or may have been moved.
-              <br />
-              <span className="text-sm text-gray-500 mt-2 block">
-                Article ID: {params.id}
-              </span>
-            </p>
-            <Button onClick={() => router.push('/')} className="bg-red-600 hover:bg-red-700 text-white">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
+  // Strip HTML tags from content for description
+  const plainTextContent = article.content.replace(/<[^>]*>/g, '')
+  const description = article.excerpt || plainTextContent.substring(0, 160) + '...'
+
+  return {
+    title: `${article.title} | Newsline Radio`,
+    description,
+    keywords: `${article.category}, news, radio, broadcasting, ${article.author}`,
+    authors: [{ name: article.author }],
+    openGraph: {
+      title: article.title,
+      description,
+      type: 'article',
+      publishedTime: new Date(article.publishedAt).toISOString(),
+      authors: [article.author],
+      images: article.imageUrl ? [{ url: article.imageUrl, alt: article.title }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description,
+      images: article.imageUrl ? [article.imageUrl] : undefined,
+    },
+  }
+}
+
+export default async function ArticlePage({ params }: PageProps) {
+  // Fetch article data server-side for SEO
+  const article = await getArticleById(params.id)
+  
+  // If article doesn't exist, show 404
+  if (!article) {
+    notFound()
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Back Button */}
-        <Button 
-          onClick={() => router.back()} 
-          variant="ghost" 
-          className="mb-8 hover:bg-gray-200"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
+        <Link href="/" className="inline-block mb-8">
+          <Button variant="ghost" className="hover:bg-gray-200">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Button>
+        </Link>
 
         {/* Featured Image */}
         {article.imageUrl && (
@@ -176,12 +136,11 @@ export default function ArticlePage() {
         <div className="bg-white rounded-lg shadow-sm p-8 text-center">
           <h3 className="text-xl font-bold text-gray-900 mb-4">Stay Updated</h3>
           <p className="text-gray-600 mb-6">Get the latest news and updates from Newsline Radio</p>
-          <Button 
-            onClick={() => router.push('/')}
-            className="bg-red-600 hover:bg-red-700 text-white px-8 py-3"
-          >
-            Read More Articles
-          </Button>
+          <Link href="/">
+            <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3">
+              Read More Articles
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

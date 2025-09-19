@@ -265,3 +265,72 @@ export const resetDailyStats = async () => {
     console.error("Error resetting daily stats:", error)
   }
 }
+
+// Article utilities for SSR/SEO
+export interface Article {
+  id: string
+  title: string
+  content: string
+  excerpt: string
+  author: string
+  category: string
+  publishedAt: number
+  imageUrl?: string
+  timestamp?: any
+}
+
+// Get single article by ID for SSR
+export async function getArticleById(id: string): Promise<Article | null> {
+  try {
+    const docRef = doc(db, 'news', id)
+    const docSnap = await getDoc(docRef)
+    
+    if (docSnap.exists()) {
+      const data = docSnap.data()
+      return {
+        id: docSnap.id,
+        title: data.title || '',
+        content: data.content || '',
+        excerpt: data.excerpt || '',
+        author: data.author || 'Newsline Team',
+        category: data.category || 'General',
+        publishedAt: data.publishedAt || data.timestamp?.toMillis?.() || Date.now(),
+        imageUrl: data.imageUrl
+      } as Article
+    }
+    
+    return null
+  } catch (error) {
+    console.error('Error fetching article:', error)
+    return null
+  }
+}
+
+// Get all articles for static generation (optional)
+export async function getAllArticles(): Promise<Article[]> {
+  try {
+    const newsRef = collection(db, 'news')
+    const q = query(newsRef, orderBy('timestamp', 'desc'))
+    const querySnapshot = await getDocs(q)
+    
+    const articles: Article[] = []
+    querySnapshot.forEach((doc) => {
+      const data = doc.data()
+      articles.push({
+        id: doc.id,
+        title: data.title || '',
+        content: data.content || '',
+        excerpt: data.excerpt || '',
+        author: data.author || 'Newsline Team',
+        category: data.category || 'General',
+        publishedAt: data.publishedAt || data.timestamp?.toMillis?.() || Date.now(),
+        imageUrl: data.imageUrl
+      } as Article)
+    })
+    
+    return articles
+  } catch (error) {
+    console.error('Error fetching articles:', error)
+    return []
+  }
+}
