@@ -26,7 +26,7 @@ export default function NewslineRadio() {
   const [currentTime, setCurrentTime] = useState(new Date())
   const [isLoading, setIsLoading] = useState(true)
 
-  const [news, setNews] = useState([])
+  const [news, setNews] = useState<any[]>([])
 
   useEffect(() => {
     const loadNews = async () => {
@@ -58,7 +58,7 @@ export default function NewslineRadio() {
   const displayNews = news.length > 0 ? news : []
 
 
-  const getTimeAgo = (date) => {
+  const getTimeAgo = (date: Date | any) => {
     const now = new Date()
     const diffInMinutes = Math.floor((now - date) / (1000 * 60))
 
