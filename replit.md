@@ -8,6 +8,15 @@ Newsline Radio is a professional live broadcasting web application built with Ne
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### September 30, 2025 - SEO-Friendly Article URLs
+- Implemented human-readable slug-based article URLs instead of random IDs
+- New URL format: `/article/2025/09/30/article-title-in-words`
+- Full backward compatibility for existing article links maintained
+- Automatic slug generation from article titles with uniqueness checking
+- Middleware-based routing for seamless legacy URL support
+
 ## System Architecture
 
 ### Frontend Architecture
