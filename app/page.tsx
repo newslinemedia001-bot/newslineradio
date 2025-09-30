@@ -20,6 +20,7 @@ import Image from "next/image"
 import Link from "next/link"
 // Firebase utils no longer needed for simplified version
 import { getNews } from "@/lib/admin-utils"
+import { buildArticleUrl } from "@/lib/slug-utils"
 
 export default function NewslineRadio() {
   const router = useRouter()
@@ -290,7 +291,12 @@ export default function NewslineRadio() {
                           )}
                         </div>
                         <button 
-                          onClick={() => router.push(`/article/${article.id}`)}
+                          onClick={() => {
+                            const url = article.slug 
+                              ? buildArticleUrl(article.slug, article.publishedAt)
+                              : `/article/${article.id}`
+                            router.push(url)
+                          }}
                           className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 flex items-center space-x-2"
                         >
                           <span>Read More</span>

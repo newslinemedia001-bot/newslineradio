@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
+import { buildArticleUrl } from '@/lib/slug-utils'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Calendar, User, Tag } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -15,15 +16,17 @@ interface Article {
   excerpt: string
   author: string
   category: string
-  publishedAt: number
+  publishedAt: string
   imageUrl?: string
+  slug?: string
 }
 
-export default function ArticlePage() {
+export default function LegacyArticlePage() {
   const params = useParams()
   const router = useRouter()
   const [article, setArticle] = useState<Article | null>(null)
   const [loading, setLoading] = useState(true)
+  const [redirecting, setRedirecting] = useState(false)
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -37,7 +40,18 @@ export default function ArticlePage() {
         const docSnap = await getDoc(docRef)
         
         if (docSnap.exists()) {
-          setArticle({ id: docSnap.id, ...docSnap.data() } as Article)
+          const data = docSnap.data()
+          
+          // Redirect to new slug-based URL if article has slug
+          if (data.slug && data.publishedAt) {
+            setRedirecting(true)
+            const newUrl = buildArticleUrl(data.slug, data.publishedAt)
+            router.replace(newUrl)
+            return
+          }
+          
+          // Otherwise, show the article with legacy URL
+          setArticle({ id: docSnap.id, ...data } as Article)
         } else {
           setArticle(null)
         }
@@ -52,7 +66,7 @@ export default function ArticlePage() {
     fetchArticle()
   }, [params.id, router])
 
-  if (loading) {
+  if (loading || redirecting) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-4xl mx-auto px-6 py-12">
@@ -79,10 +93,6 @@ export default function ArticlePage() {
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Article not found</h1>
             <p className="text-gray-600 mb-6">
               The article you're looking for doesn't exist or may have been moved.
-              <br />
-              <span className="text-sm text-gray-500 mt-2 block">
-                Article ID: {params.id}
-              </span>
             </p>
             <Button onClick={() => router.push('/')} className="bg-red-600 hover:bg-red-700 text-white">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -187,3 +197,4 @@ export default function ArticlePage() {
     </div>
   )
 }
+

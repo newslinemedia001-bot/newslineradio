@@ -21,6 +21,7 @@ import {
   Youtube as YoutubeIcon,
   Upload
 } from 'lucide-react'
+import { generateSlug, ensureUniqueSlug, getDateParts } from '@/lib/slug-utils'
 
 interface ArticleEditorProps {
   onSave: (article: any) => void
@@ -136,11 +137,16 @@ export default function ArticleEditor({ onSave, initialData, onCancel }: Article
     }
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title.trim() || !editor?.getHTML()) {
       alert('Please fill in title and content')
       return
     }
+
+    const baseSlug = generateSlug(title.trim())
+    const slug = initialData?.slug || await ensureUniqueSlug(baseSlug)
+    const publishedAt = initialData?.publishedAt || new Date().toISOString()
+    const dateParts = getDateParts(publishedAt)
 
     const article = {
       title: title.trim(),
@@ -149,8 +155,12 @@ export default function ArticleEditor({ onSave, initialData, onCancel }: Article
       category: category.trim(),
       author: author.trim(),
       imageUrl: featuredImage,
-      publishedAt: initialData?.publishedAt || new Date().toISOString(),
+      publishedAt,
       updatedAt: new Date().toISOString(),
+      slug,
+      year: dateParts.year,
+      month: dateParts.month,
+      day: dateParts.day,
     }
 
     onSave(article)
