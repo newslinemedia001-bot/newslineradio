@@ -25,7 +25,10 @@ export default function SubscribeForm() {
       const success = await createSubscriber(email, undefined, "email")
       
       if (success) {
-        toast.success("Successfully subscribed to email updates!")
+        toast.success("✅ Successfully subscribed to email updates!", {
+          description: "You'll receive notifications when we go live!",
+          duration: 5000,
+        })
         setEmail("")
       } else {
         toast.error("Failed to subscribe. Please try again.")
@@ -47,7 +50,10 @@ export default function SubscribeForm() {
         const success = await createSubscriber(undefined, token, "notification")
         
         if (success) {
-          toast.success("🔔 Push notifications enabled!")
+          toast.success("🔔 Push Notifications Enabled Successfully!", {
+            description: "You'll receive instant notifications whenever Newsline Radio goes live!",
+            duration: 6000,
+          })
         } else {
           toast.error("Failed to enable notifications. Please try again.")
         }

@@ -174,7 +174,7 @@ export const getChatMessages = async (limitCount = 20) => {
     const q = query(chatRef, orderBy("timestamp", "desc"), limit(limitCount))
     const querySnapshot = await getDocs(q)
 
-    const messages = []
+    const messages: any[] = []
     querySnapshot.forEach((doc) => {
       const data = doc.data()
       messages.push({

@@ -15,6 +15,7 @@ interface Subscriber {
   fcmToken?: string
   type: "email" | "notification"
   subscribedAt: any
+  deleted?: boolean
 }
 
 export default function SubscribersManager() {
@@ -109,7 +110,11 @@ export default function SubscribersManager() {
 
       if (response.ok) {
         toast.success(
-          `✅ Sent to ${result.successCount} subscribers! ${result.failureCount > 0 ? `(${result.failureCount} failed)` : ""}`
+          `✅ Push Notifications Sent Successfully!`,
+          {
+            description: `Delivered to ${result.successCount} subscribers${result.failureCount > 0 ? ` (${result.failureCount} failed)` : ""}`,
+            duration: 6000,
+          }
         )
         setNotificationTitle("")
         setNotificationMessage("")
