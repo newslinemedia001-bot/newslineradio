@@ -67,12 +67,12 @@ export default function SubscribeForm() {
     
     try {
       console.log("🔔 Requesting notification permission...")
-      const token = await requestNotificationPermission()
-      console.log("🔔 Token received:", token ? "Yes" : "No")
+      const response = await requestNotificationPermission()
+      console.log("🔔 Response:", response)
       
-      if (token) {
+      if (response?.token) {
         console.log("🔔 Subscribing with token...")
-        const result = await createSubscriber(undefined, token, "notification")
+        const result = await createSubscriber(undefined, response.token, "notification")
         console.log("🔔 Subscription result:", result)
         
         if (result === "success") {
@@ -94,11 +94,41 @@ export default function SubscribeForm() {
             duration: 5000,
           })
         }
+      } else if (response?.error) {
+        console.error("❌ Error from permission request:", response.error)
+        
+        // Provide specific error messages
+        if (response.error === "permission_denied") {
+          toast.error("Notifications Blocked", {
+            description: "You have blocked notifications. Please enable them in your browser settings to receive updates.",
+            duration: 8000,
+          })
+        } else if (response.error === "permission_dismissed") {
+          toast.warning("Permission Required", {
+            description: "Please allow notifications when prompted to receive live updates.",
+            duration: 5000,
+          })
+        } else if (response.error === "browser_not_supported") {
+          toast.error("Not Supported", {
+            description: "Your browser doesn't support push notifications.",
+            duration: 5000,
+          })
+        } else if (response.error === "vapid_key_missing") {
+          toast.error("Configuration Error", {
+            description: "Push notification service is not configured properly. Please contact support.",
+            duration: 8000,
+          })
+        } else {
+          toast.error("Could not enable notifications", {
+            description: `Error: ${response.error}. Please try again or check your browser settings.`,
+            duration: 6000,
+          })
+        }
       } else {
-        console.error("❌ Could not get notification permission or token")
+        console.error("❌ Unexpected response format")
         toast.error("Could not enable notifications", {
-          description: "Please allow notifications in your browser settings and try again.",
-          duration: 6000,
+          description: "An unexpected error occurred. Please try again.",
+          duration: 5000,
         })
       }
     } catch (error) {

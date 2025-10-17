@@ -9,6 +9,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Expose VITE environment variables to the browser
+  env: {
+    VITE_FIREBASE_VAPID_KEY: process.env.VITE_FIREBASE_VAPID_KEY,
+  },
   async rewrites() {
     return [
       {
