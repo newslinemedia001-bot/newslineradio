@@ -76,7 +76,10 @@ export default function SubscribersManager() {
   }
 
   const sendNotifications = async () => {
+    console.log("🔔 Starting push notification send process...")
+    
     if (!notificationTitle.trim() || !notificationMessage.trim()) {
+      console.error("❌ Missing title or message")
       toast.error("Please enter both title and message")
       return
     }
@@ -85,14 +88,22 @@ export default function SubscribersManager() {
       (s) => s.type === "notification" && s.fcmToken && !s.deleted
     )
 
+    console.log(`📊 Found ${notificationSubscribers.length} notification subscribers`)
+
     if (notificationSubscribers.length === 0) {
+      console.error("❌ No notification subscribers found")
       toast.error("No notification subscribers found")
       return
     }
 
     setIsSending(true)
+    
     try {
       const tokens = notificationSubscribers.map((s) => s.fcmToken).filter(Boolean)
+      
+      console.log(`📤 Sending to ${tokens.length} tokens...`)
+      console.log(`📝 Title: "${notificationTitle}"`)
+      console.log(`📝 Message: "${notificationMessage}"`)
 
       const response = await fetch("/.netlify/functions/send-push-notifications", {
         method: "POST",
@@ -106,9 +117,17 @@ export default function SubscribersManager() {
         }),
       })
 
+      console.log(`📡 API Response Status: ${response.status}`)
+      
       const result = await response.json()
+      console.log("📦 API Response Data:", result)
 
       if (response.ok) {
+        console.log(`✅ Successfully sent to ${result.successCount} devices!`)
+        if (result.failureCount > 0) {
+          console.warn(`⚠️ Failed to send to ${result.failureCount} devices`)
+        }
+        
         toast.success(
           `✅ Push Notifications Sent Successfully!`,
           {
@@ -119,12 +138,27 @@ export default function SubscribersManager() {
         setNotificationTitle("")
         setNotificationMessage("")
       } else {
-        toast.error(`Failed: ${result.error || "Unknown error"}`)
+        console.error("❌ API returned error:", result.error || "Unknown error")
+        console.error("❌ Full error details:", result)
+        toast.error(`Failed to send notifications: ${result.error || "Unknown error"}`, {
+          description: result.details || "Check console for more details",
+          duration: 8000,
+        })
       }
     } catch (error) {
-      console.error("Error sending notifications:", error)
-      toast.error("Failed to send notifications")
+      console.error("❌ Critical error sending notifications:", error)
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+      console.error("❌ Error details:", {
+        message: errorMessage,
+        stack: error instanceof Error ? error.stack : undefined,
+        name: error instanceof Error ? error.name : undefined
+      })
+      toast.error("Failed to send notifications", {
+        description: `Error: ${errorMessage}. Check console for details.`,
+        duration: 8000,
+      })
     } finally {
+      console.log("🏁 Notification send process completed")
       setIsSending(false)
     }
   }

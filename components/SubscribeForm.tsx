@@ -15,55 +15,88 @@ export default function SubscribeForm() {
   const [isEnablingNotifications, setIsEnablingNotifications] = useState(false)
 
   const handleEmailSubscribe = async () => {
+    console.log("📧 Starting email subscription process...")
+    
     if (!email || !email.includes("@")) {
+      console.error("❌ Invalid email:", email)
       toast.error("Please enter a valid email address")
       return
     }
 
+    console.log("📧 Subscribing email:", email)
     setIsSubscribing(true)
+    
     try {
       const success = await createSubscriber(email, undefined, "email")
+      console.log("📧 Subscription result:", success)
       
       if (success) {
+        console.log("✅ Email subscription successful!")
         toast.success("✅ Successfully subscribed to email updates!", {
-          description: "You'll receive notifications when we go live!",
-          duration: 5000,
+          description: "You'll receive email notifications when we publish new content or go live!",
+          duration: 6000,
         })
         setEmail("")
       } else {
+        console.error("❌ Email subscription failed")
         toast.error("Failed to subscribe. Please try again.")
       }
     } catch (error) {
-      console.error("Error subscribing:", error)
-      toast.error("An error occurred. Please try again.")
+      console.error("❌ Error subscribing:", error)
+      const errorMessage = error instanceof Error ? error.message : "Unknown error"
+      toast.error("An error occurred while subscribing", {
+        description: errorMessage,
+        duration: 5000,
+      })
     } finally {
+      console.log("🏁 Email subscription process completed")
       setIsSubscribing(false)
     }
   }
 
   const handleNotificationSubscribe = async () => {
+    console.log("🔔 Starting push notification enable process...")
     setIsEnablingNotifications(true)
+    
     try {
+      console.log("🔔 Requesting notification permission...")
       const token = await requestNotificationPermission()
+      console.log("🔔 Token received:", token ? "Yes" : "No")
       
       if (token) {
+        console.log("🔔 Subscribing with token...")
         const success = await createSubscriber(undefined, token, "notification")
+        console.log("🔔 Subscription result:", success)
         
         if (success) {
+          console.log("✅ Push notifications enabled successfully!")
           toast.success("🔔 Push Notifications Enabled Successfully!", {
-            description: "You'll receive instant notifications whenever Newsline Radio goes live!",
+            description: "You'll receive instant push notifications whenever we broadcast live or publish new content!",
             duration: 6000,
           })
         } else {
-          toast.error("Failed to enable notifications. Please try again.")
+          console.error("❌ Failed to save notification subscription")
+          toast.error("Failed to enable notifications", {
+            description: "There was an error saving your subscription. Please try again.",
+            duration: 5000,
+          })
         }
       } else {
-        toast.error("Could not get notification permission. Please allow notifications in your browser settings.")
+        console.error("❌ Could not get notification permission or token")
+        toast.error("Could not enable notifications", {
+          description: "Please allow notifications in your browser settings and try again.",
+          duration: 6000,
+        })
       }
     } catch (error) {
-      console.error("Error enabling notifications:", error)
-      toast.error("An error occurred. Please try again.")
+      console.error("❌ Error enabling notifications:", error)
+      const errorMessage = error instanceof Error ? error.message : "Unknown error"
+      toast.error("An error occurred while enabling notifications", {
+        description: errorMessage,
+        duration: 5000,
+      })
     } finally {
+      console.log("🏁 Push notification enable process completed")
       setIsEnablingNotifications(false)
     }
   }

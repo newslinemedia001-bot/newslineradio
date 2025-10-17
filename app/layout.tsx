@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Tinos as Times } from "next/font/google"
 import "./globals.css"
+import { Toaster } from "@/components/ui/sonner"
 
 const times = Times({
   subsets: ["latin"],
@@ -31,7 +32,10 @@ html {
 }
         `}</style>
       </head>
-      <body className={times.className}>{children}</body>
+      <body className={times.className}>
+        {children}
+        <Toaster position="top-right" expand={true} richColors />
+      </body>
     </html>
   )
 }

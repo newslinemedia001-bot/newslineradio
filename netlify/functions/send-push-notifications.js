@@ -89,7 +89,7 @@ exports.handler = async (event, context) => {
       },
       webpush: {
         fcmOptions: {
-          link: 'https://radio.kenlive.co.ke'
+          link: 'https://radio.newsline.co.ke'
         },
         notification: {
           title: title,
