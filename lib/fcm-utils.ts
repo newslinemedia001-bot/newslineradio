@@ -49,6 +49,36 @@ export async function requestNotificationPermission() {
         )
         console.log("✅ Service Worker registered:", registration)
 
+        // Wait for service worker to be ready/active
+        console.log("🔔 Waiting for service worker to activate...")
+        if (registration.installing) {
+          console.log("⏳ Service worker is installing...")
+          await new Promise((resolve) => {
+            registration.installing!.addEventListener('statechange', function(e) {
+              if ((e.target as ServiceWorker).state === 'activated') {
+                console.log("✅ Service worker activated!")
+                resolve(null)
+              }
+            })
+          })
+        } else if (registration.waiting) {
+          console.log("⏳ Service worker is waiting...")
+          await new Promise((resolve) => {
+            registration.waiting!.addEventListener('statechange', function(e) {
+              if ((e.target as ServiceWorker).state === 'activated') {
+                console.log("✅ Service worker activated!")
+                resolve(null)
+              }
+            })
+          })
+        } else if (registration.active) {
+          console.log("✅ Service worker already active!")
+        }
+
+        // Ensure the service worker is ready
+        await navigator.serviceWorker.ready
+        console.log("✅ Service worker is ready!")
+
         // Get FCM token
         console.log("🔔 Getting FCM token with VAPID key...")
         const token = await getToken(messagingInstance, {
