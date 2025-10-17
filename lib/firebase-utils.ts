@@ -270,6 +270,7 @@ export const resetDailyStats = async () => {
 
 /**
  * Create a subscriber (email or notification)
+ * @returns "success" | "already_subscribed" | "error"
  */
 export const createSubscriber = async (email?: string, fcmToken?: string, type: "email" | "notification" = "email") => {
   try {
@@ -280,17 +281,26 @@ export const createSubscriber = async (email?: string, fcmToken?: string, type: 
     
     const subscriberRef = doc(db, "subscribers", subscriberId)
     
+    // Check if subscriber already exists
+    const existingDoc = await getDoc(subscriberRef)
+    
+    if (existingDoc.exists() && !existingDoc.data().deleted) {
+      console.log("Subscriber already exists:", subscriberId)
+      return "already_subscribed"
+    }
+    
     await setDoc(subscriberRef, {
       email: email || null,
       fcmToken: fcmToken || null,
       type: type,
       subscribedAt: serverTimestamp(),
+      deleted: false,
     })
     
-    return true
+    return "success"
   } catch (error) {
     console.error("Error creating subscriber:", error)
-    return false
+    return "error"
   }
 }
 

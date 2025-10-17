@@ -27,14 +27,21 @@ export default function SubscribeForm() {
     setIsSubscribing(true)
     
     try {
-      const success = await createSubscriber(email, undefined, "email")
-      console.log("📧 Subscription result:", success)
+      const result = await createSubscriber(email, undefined, "email")
+      console.log("📧 Subscription result:", result)
       
-      if (success) {
+      if (result === "success") {
         console.log("✅ Email subscription successful!")
         toast.success("✅ Successfully subscribed to email updates!", {
           description: "You'll receive email notifications when we publish new content or go live!",
           duration: 6000,
+        })
+        setEmail("")
+      } else if (result === "already_subscribed") {
+        console.log("ℹ️ Email already subscribed")
+        toast.info("Already subscribed!", {
+          description: "This email is already on our mailing list. You're all set!",
+          duration: 5000,
         })
         setEmail("")
       } else {
@@ -65,14 +72,20 @@ export default function SubscribeForm() {
       
       if (token) {
         console.log("🔔 Subscribing with token...")
-        const success = await createSubscriber(undefined, token, "notification")
-        console.log("🔔 Subscription result:", success)
+        const result = await createSubscriber(undefined, token, "notification")
+        console.log("🔔 Subscription result:", result)
         
-        if (success) {
+        if (result === "success") {
           console.log("✅ Push notifications enabled successfully!")
           toast.success("🔔 Push Notifications Enabled Successfully!", {
             description: "You'll receive instant push notifications whenever we broadcast live or publish new content!",
             duration: 6000,
+          })
+        } else if (result === "already_subscribed") {
+          console.log("ℹ️ Push notifications already enabled")
+          toast.info("Already subscribed!", {
+            description: "Push notifications are already enabled for this device. You're all set!",
+            duration: 5000,
           })
         } else {
           console.error("❌ Failed to save notification subscription")
