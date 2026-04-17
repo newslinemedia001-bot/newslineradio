@@ -45,8 +45,16 @@ export default function NewslineRadio() {
   const getTimeAgo = (date: any) => {
     if (!date) return "Just now"
     
-    // Handle Firestore Timestamp
-    const dateObj = date.toDate ? date.toDate() : new Date(date)
+    // Handle Firestore Timestamp or Date object
+    let dateObj;
+    if (date.toDate) {
+      dateObj = date.toDate(); // Firestore Timestamp
+    } else if (date instanceof Date) {
+      dateObj = date;
+    } else {
+      dateObj = new Date(date); // String or number
+    }
+    
     const now = new Date()
     const diffInMinutes = Math.floor((now.getTime() - dateObj.getTime()) / (1000 * 60))
     if (diffInMinutes < 1) return "Just now"
@@ -154,7 +162,7 @@ export default function NewslineRadio() {
                     <div key={i}>
                       <Link href={buildArticleUrl(article.slug)} className="block group">
                         <p className="text-sm leading-snug hover:underline line-clamp-3 font-medium">{article.title}</p>
-                        <span className="text-xs text-white/80 mt-1 block">{getTimeAgo(new Date(article.publishedAt))}</span>
+                        <span className="text-xs text-white/80 mt-1 block">{getTimeAgo(article.publishedAt || article.timestamp)}</span>
                       </Link>
                       {i < 2 && <div className="border-b border-white/30 my-3"></div>}
                     </div>
@@ -189,7 +197,7 @@ export default function NewslineRadio() {
                       <div className="flex items-center gap-4 text-sm">
                         <span className="font-medium">{featuredArticle.author || "Newsline Team"}</span>
                         <span>•</span>
-                        <span>{getTimeAgo(new Date(featuredArticle.publishedAt))}</span>
+                        <span>{getTimeAgo(featuredArticle.publishedAt || featuredArticle.timestamp)}</span>
                       </div>
                     </div>
                   </div>
@@ -208,7 +216,7 @@ export default function NewslineRadio() {
                     <div key={i}>
                       <Link href={buildArticleUrl(article.slug)} className="block group">
                         <p className="text-sm leading-snug hover:underline line-clamp-3 font-medium">{article.title}</p>
-                        <span className="text-xs text-white/80 mt-1 block">{getTimeAgo(new Date(article.publishedAt))}</span>
+                        <span className="text-xs text-white/80 mt-1 block">{getTimeAgo(article.publishedAt || article.timestamp)}</span>
                       </Link>
                       {i < 2 && <div className="border-b border-white/30 my-3"></div>}
                     </div>
@@ -252,7 +260,7 @@ export default function NewslineRadio() {
                       </p>
                       <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-gray-100">
                         <span className="font-medium">{article.author || "Newsline"}</span>
-                        <span>{getTimeAgo(new Date(article.publishedAt))}</span>
+                        <span>{getTimeAgo(article.publishedAt || article.timestamp)}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -287,7 +295,7 @@ export default function NewslineRadio() {
                           {article.title}
                         </h3>
                         <div className="flex items-center justify-between text-[10px] text-gray-500 mt-3">
-                          <span>{getTimeAgo(new Date(article.publishedAt))}</span>
+                          <span>{getTimeAgo(article.publishedAt || article.timestamp)}</span>
                         </div>
                       </CardContent>
                     </Card>
@@ -324,7 +332,7 @@ export default function NewslineRadio() {
                       <div className="flex items-center gap-2 text-xs text-gray-500">
                         <span className="font-medium">{article.category}</span>
                         <span>•</span>
-                        <span>{getTimeAgo(new Date(article.publishedAt))}</span>
+                        <span>{getTimeAgo(article.publishedAt || article.timestamp)}</span>
                       </div>
                     </div>
                   </Link>
