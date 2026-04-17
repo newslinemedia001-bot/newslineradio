@@ -341,7 +341,7 @@ export async function importRssFeed(manualCategory: string | null = null) {
                             author: item.creator || (item as any).author || 'RSS Feed',
                             status: 'published',
                             publishedAt: pubDate,
-                            createdAt: serverTimestamp(),
+                            timestamp: serverTimestamp(),
                             isRssImport: true
                         };
 
