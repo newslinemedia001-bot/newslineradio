@@ -43,8 +43,12 @@ export default function NewslineRadio() {
   }, [])
 
   const getTimeAgo = (date: any) => {
+    if (!date) return "Just now"
+    
+    // Handle Firestore Timestamp
+    const dateObj = date.toDate ? date.toDate() : new Date(date)
     const now = new Date()
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+    const diffInMinutes = Math.floor((now.getTime() - dateObj.getTime()) / (1000 * 60))
     if (diffInMinutes < 1) return "Just now"
     if (diffInMinutes < 60) return `${diffInMinutes} min ago`
     const diffInHours = Math.floor(diffInMinutes / 60)
@@ -196,7 +200,7 @@ export default function NewslineRadio() {
 
           {/* Right Category Sidebar - Sports */}
           <div className="lg:col-span-2">
-            <Card className="bg-black text-white border-0 shadow-xl h-full">
+            <Card className="bg-red-600 text-white border-0 shadow-xl h-full">
               <CardContent className="p-4">
                 <h3 className="font-bold text-base mb-4 border-b-2 border-white/40 pb-2">SPORTS</h3>
                 <div className="space-y-4">
