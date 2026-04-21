@@ -110,7 +110,7 @@ export default function NewslineRadio() {
                     </div>
                     <div className="flex-1 bg-black/80 rounded overflow-hidden border border-white/20">
                       <iframe
-                        src="https://84.8.135.135/public/newsline/embed?autoplay=1"
+                        src="/api/radio-proxy"
                         frameBorder="0"
                         allowTransparency="true"
                         allow="autoplay"
