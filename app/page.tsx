@@ -110,7 +110,7 @@ export default function NewslineRadio() {
                     </div>
                     <div className="flex-1 bg-black/80 rounded overflow-hidden border border-white/20">
                       <iframe
-                        src="https://a12.asurahosting.com/public/newsline/embed?theme=dark&autoplay=1"
+                        src="http://84.8.135.135/public/newsline/embed"
                         allow="autoplay"
                         className="w-full h-[100px] border-0"
                         title="Newsline Radio Player"
