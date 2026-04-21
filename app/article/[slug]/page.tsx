@@ -1,198 +1,314 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { ArrowLeft, Clock, User, Tag, Calendar } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import Image from "next/image"
 import Link from "next/link"
-import { collection, query, where, getDocs } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { getNews } from "@/lib/admin-utils"
+import { buildArticleUrl } from "@/lib/slug-utils"
+import { ExternalLink, Calendar, User, Tag } from "lucide-react"
 
-interface Article {
-  id: string
-  title: string
-  content: string
-  excerpt?: string
-  category?: string
-  author?: string
-  imageUrl?: string
-  publishedAt: string
-  slug: string
-  seoTitle?: string
-  seoDescription?: string
-  focusKeyword?: string
-}
-
-export default function ArticlePage() {
-  const router = useRouter()
-  const params = useParams()
-  const slug = params?.slug as string
-  const [article, setArticle] = useState<Article | null>(null)
-  const [loading, setLoading] = useState(true)
+export default function ArticlePage({ params }: { params: { slug: string } }) {
+  const [article, setArticle] = useState<any>(null)
+  const [similarArticles, setSimilarArticles] = useState<any[]>([])
+  const [latestArticles, setLatestArticles] = useState<any[]>([])
+  const [sidebarArticles, setSidebarArticles] = useState<any[]>([])
+  const [readAlsoArticles, setReadAlsoArticles] = useState<any[]>([])
 
   useEffect(() => {
-    if (!slug) return
-
     const loadArticle = async () => {
       try {
-        console.log("Looking for article with slug:", slug)
-        const newsRef = collection(db, "news")
-        const q = query(newsRef, where("slug", "==", slug))
-        const querySnapshot = await getDocs(q)
+        const newsData = await getNews()
+        const found = newsData.find((n: any) => n.slug === params.slug)
         
-        console.log("Query results:", querySnapshot.size, "documents found")
-
-        if (!querySnapshot.empty) {
-          const doc = querySnapshot.docs[0]
-          const articleData = { id: doc.id, ...doc.data() } as Article
-          console.log("Article found:", articleData.title)
-          setArticle(articleData)
-        } else {
-          console.log("No article found with slug:", slug)
+        if (found) {
+          setArticle(found)
+          
+          // Similar articles (same category, exclude current)
+          const similar = newsData
+            .filter((n: any) => n.category === found.category && n.id !== found.id)
+            .slice(0, 4)
+          setSimilarArticles(similar)
+          
+          // Latest articles (exclude current)
+          const latest = newsData
+            .filter((n: any) => n.id !== found.id)
+            .slice(0, 4)
+          setLatestArticles(latest)
+          
+          // Sidebar articles (random category, exclude current)
+          const sidebar = newsData
+            .filter((n: any) => n.id !== found.id)
+            .slice(0, 6)
+          setSidebarArticles(sidebar)
+          
+          // Read also articles (for inline links)
+          const readAlso = newsData
+            .filter((n: any) => n.id !== found.id)
+            .slice(0, 3)
+          setReadAlsoArticles(readAlso)
         }
       } catch (error) {
         console.error("Error loading article:", error)
-      } finally {
-        setLoading(false)
       }
     }
-
     loadArticle()
-  }, [slug])
+  }, [params.slug])
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading article...</p>
-        </div>
-      </div>
-    )
+  const getTimeAgo = (date: any) => {
+    if (!date) return "Just now"
+    
+    let dateObj
+    if (date.toDate) {
+      dateObj = date.toDate()
+    } else if (date instanceof Date) {
+      dateObj = date
+    } else {
+      dateObj = new Date(date)
+    }
+    
+    const now = new Date()
+    const diffInMinutes = Math.floor((now.getTime() - dateObj.getTime()) / (1000 * 60))
+    if (diffInMinutes < 1) return "Just now"
+    if (diffInMinutes < 60) return `${diffInMinutes} min ago`
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    if (diffInHours < 24) return `${diffInHours}h ago`
+    const diffInDays = Math.floor(diffInHours / 24)
+    return `${diffInDays}d ago`
   }
 
   if (!article) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <Card className="p-8 text-center max-w-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Article Not Found</h2>
-          <p className="text-gray-600 mb-6">The article you're looking for doesn't exist.</p>
-          <Button onClick={() => router.push("/")} className="bg-red-600 hover:bg-red-700">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
-        </Card>
+        <p className="text-gray-500">Loading...</p>
       </div>
     )
   }
 
+  // Insert "Read Also" links into content
+  const insertReadAlsoLinks = (content: string) => {
+    if (!readAlsoArticles.length) return content
+    
+    const paragraphs = content.split('</p>')
+    const insertPositions = [
+      Math.floor(paragraphs.length * 0.3),
+      Math.floor(paragraphs.length * 0.6),
+      Math.floor(paragraphs.length * 0.9)
+    ]
+    
+    insertPositions.forEach((pos, index) => {
+      if (readAlsoArticles[index] && paragraphs[pos]) {
+        const readAlsoLink = `
+          <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 16px; margin: 20px 0;">
+            <p style="color: #3b82f6; font-weight: 600; margin-bottom: 8px;">📖 READ ALSO:</p>
+            <a href="${buildArticleUrl(readAlsoArticles[index].slug)}" style="color: #2563eb; text-decoration: none; font-weight: 500; hover:underline">
+              ${readAlsoArticles[index].title}
+            </a>
+          </div>
+        `
+        paragraphs[pos] += readAlsoLink
+      }
+    })
+    
+    return paragraphs.join('</p>')
+  }
+
   return (
-    <div className="min-h-screen bg-white">
-        {/* Header */}
-        <header className="bg-black text-white p-6 shadow-md">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-black text-white shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 py-5">
           <Link href="/">
-            <Image
+            <img
               src="/newsline-logo.png"
               alt="Newsline Media TV"
-              width={150}
-              height={75}
+              width={140}
+              height={70}
               className="hover:opacity-80 transition-opacity cursor-pointer"
             />
           </Link>
-          <Button
-            variant="ghost"
-            onClick={() => router.push("/")}
-            className="text-white hover:bg-gray-800"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Button>
         </div>
       </header>
 
-      {/* Article Content */}
-      <main className="max-w-4xl mx-auto px-6 py-12">
-        <article>
-          {/* Category Badge */}
-          {article.category && (
-            <div className="mb-4">
-              <span className="inline-flex items-center bg-red-600 text-white px-4 py-1 rounded-full text-sm font-medium uppercase tracking-wide">
-                <Tag className="w-3 h-3 mr-2" />
-                {article.category}
-              </span>
-            </div>
-          )}
+      <nav className="bg-gradient-to-r from-red-600 to-red-700 shadow-lg sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-center gap-1 py-3 overflow-x-auto">
+            <Link href="/" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+              HOME
+            </Link>
+            <Link href="/category/news" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+              NEWS
+            </Link>
+            <Link href="/category/politics" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+              POLITICS
+            </Link>
+            <Link href="/category/entertainment" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+              ENTERTAINMENT
+            </Link>
+            <Link href="/category/sports" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+              SPORTS
+            </Link>
+            <Link href="/category/lifestyle" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+              LIFESTYLE
+            </Link>
+          </div>
+        </div>
+      </nav>
 
-          {/* Title */}
-          <h1 className="text-4xl md:text-5xl font-bold text-black mb-6 leading-tight">
-            {article.title}
-          </h1>
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-8">
+            <article className="bg-white rounded-lg shadow-lg overflow-hidden">
+              {/* Featured Image */}
+              {article.imageUrl && (
+                <div className="relative h-96 w-full">
+                  <img
+                    src={article.imageUrl}
+                    alt={article.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
 
-          {/* Meta Information */}
-          <div className="flex flex-wrap items-center gap-4 text-gray-600 mb-8 pb-6 border-b border-gray-200">
-            <div className="flex items-center space-x-2">
-              <User className="w-4 h-4" />
-              <span className="text-sm">{article.author || "Newsline Team"}</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4" />
-              <span className="text-sm">
-                {new Date(article.publishedAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Clock className="w-4 h-4" />
-              <span className="text-sm">
-                {Math.ceil(article.content.replace(/<[^>]*>/g, "").split(" ").length / 200)} min read
-              </span>
-            </div>
+              <div className="p-8">
+                {/* Category Badge */}
+                <Link href={`/category/${article.category?.toLowerCase()}`}>
+                  <span className="inline-block bg-red-600 text-white px-4 py-1 rounded text-sm font-bold uppercase mb-4 hover:bg-red-700 transition-colors">
+                    {article.category}
+                  </span>
+                </Link>
+
+                {/* Title */}
+                <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
+                  {article.title}
+                </h1>
+
+                {/* Meta Info */}
+                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-6 pb-6 border-b border-gray-200">
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    <span>{article.author || "Newsline Team"}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    <span>{getTimeAgo(article.publishedAt || article.timestamp)}</span>
+                  </div>
+                  {article.sourceName && (
+                    <div className="flex items-center gap-2">
+                      <Tag className="w-4 h-4" />
+                      <span>{article.sourceName}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Article Content with Read Also links */}
+                <div 
+                  className="prose prose-lg max-w-none"
+                  dangerouslySetInnerHTML={{ __html: insertReadAlsoLinks(article.content || '') }}
+                />
+
+                {/* Read Original Source Button (for RSS articles) */}
+                {article.isRssImport && article.sourceUrl && (
+                  <div className="mt-8 p-6 bg-blue-50 border-l-4 border-blue-500 rounded">
+                    <p className="text-gray-700 mb-3">This article was imported from an external source.</p>
+                    <Button 
+                      onClick={() => window.open(article.sourceUrl, '_blank')}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Read Original Source
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </article>
+
+            {/* Similar Articles */}
+            {similarArticles.length > 0 && (
+              <div className="mt-12">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Articles</h2>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  {similarArticles.map((item, i) => (
+                    <Link key={i} href={buildArticleUrl(item.slug)}>
+                      <Card className="bg-white hover:shadow-xl transition-all group cursor-pointer h-full">
+                        <div className="relative h-32 overflow-hidden">
+                          <img
+                            src={item.imageUrl || "/placeholder.jpg"}
+                            alt={item.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                        </div>
+                        <CardContent className="p-3">
+                          <h3 className="font-bold text-sm line-clamp-2 group-hover:text-red-600 transition-colors">
+                            {item.title}
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-2">{getTimeAgo(item.publishedAt || item.timestamp)}</p>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Latest Articles */}
+            {latestArticles.length > 0 && (
+              <div className="mt-12">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Latest News</h2>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  {latestArticles.map((item, i) => (
+                    <Link key={i} href={buildArticleUrl(item.slug)}>
+                      <Card className="bg-white hover:shadow-xl transition-all group cursor-pointer h-full">
+                        <div className="relative h-32 overflow-hidden">
+                          <img
+                            src={item.imageUrl || "/placeholder.jpg"}
+                            alt={item.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          />
+                        </div>
+                        <CardContent className="p-3">
+                          <h3 className="font-bold text-sm line-clamp-2 group-hover:text-red-600 transition-colors">
+                            {item.title}
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-2">{getTimeAgo(item.publishedAt || item.timestamp)}</p>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Featured Image */}
-          {article.imageUrl && (
-            <div className="mb-8">
-              <img
-                src={article.imageUrl}
-                alt={article.title}
-                className="w-full h-auto rounded-lg shadow-lg"
-              />
+          {/* Right Sidebar */}
+          <div className="lg:col-span-4">
+            <div className="bg-white rounded-lg shadow-lg p-6 sticky top-24">
+              <h2 className="text-xl font-bold text-gray-900 mb-6 pb-3 border-b-2 border-red-600">
+                More Stories
+              </h2>
+              <div className="space-y-4">
+                {sidebarArticles.map((item, i) => (
+                  <Link key={i} href={buildArticleUrl(item.slug)} className="flex gap-3 group pb-4 border-b border-gray-100 last:border-0">
+                    <div className="relative w-24 h-24 flex-shrink-0 overflow-hidden rounded">
+                      <img
+                        src={item.imageUrl || "/placeholder.jpg"}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-sm line-clamp-3 group-hover:text-red-600 transition-colors mb-2">
+                        {item.title}
+                      </h3>
+                      <p className="text-xs text-gray-500">{getTimeAgo(item.publishedAt || item.timestamp)}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
-          )}
-
-          {/* Article Content */}
-          <div
-            className="prose prose-lg max-w-none article-content"
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
-        </article>
-
-        {/* Back Button */}
-        <div className="mt-12 pt-8 border-t border-gray-200">
-          <Button
-            onClick={() => router.push("/")}
-            className="bg-red-600 hover:bg-red-700 text-white"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to All Articles
-          </Button>
+          </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="mt-16 bg-black text-white border-t border-gray-700">
-        <div className="max-w-4xl mx-auto p-8 text-center">
-          <p className="text-sm text-gray-300">
-            © 2024 Newsline Radio. All rights reserved.
-          </p>
-        </div>
-      </footer>
     </div>
   )
 }

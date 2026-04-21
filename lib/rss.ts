@@ -52,6 +52,12 @@ export const DEFAULT_FEEDS = [
         category: 'News',
         enabled: true
     },
+    {
+        name: 'Tukio Radio',
+        url: 'https://tukioradio.co.ke/feed/',
+        category: 'News',
+        enabled: true
+    },
 
     // --- POLITICS ---
     {
@@ -109,6 +115,12 @@ export const DEFAULT_FEEDS = [
     {
         name: 'Standard Sports',
         url: 'https://www.standardmedia.co.ke/rss/sports.php',
+        category: 'Sports',
+        enabled: true
+    },
+    {
+        name: 'Tukio Radio Sports',
+        url: 'https://tukioradio.co.ke/category/sports/feed/',
         category: 'Sports',
         enabled: true
     },

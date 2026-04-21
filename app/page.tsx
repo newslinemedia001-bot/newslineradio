@@ -149,6 +149,32 @@ export default function NewslineRadio() {
         </div>
       </header>
 
+      {/* Navigation Bar */}
+      <nav className="bg-gradient-to-r from-red-600 to-red-700 shadow-lg sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-center gap-1 py-3 overflow-x-auto">
+            <Link href="/" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+              HOME
+            </Link>
+            <Link href="/category/news" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+              NEWS
+            </Link>
+            <Link href="/category/politics" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+              POLITICS
+            </Link>
+            <Link href="/category/entertainment" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+              ENTERTAINMENT
+            </Link>
+            <Link href="/category/sports" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+              SPORTS
+            </Link>
+            <Link href="/category/lifestyle" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+              LIFESTYLE
+            </Link>
+          </div>
+        </div>
+      </nav>
+
       <main className="max-w-7xl mx-auto px-4 py-6">
         {/* Hero Section with Categories */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-8">
