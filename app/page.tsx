@@ -110,9 +110,11 @@ export default function NewslineRadio() {
                     </div>
                     <div className="flex-1 bg-black/80 rounded overflow-hidden border border-white/20">
                       <iframe
-                        src="http://84.8.135.135/public/newsline/embed"
-                        className="w-full border-0"
-                        style={{ minHeight: '150px', height: '150px' }}
+                        src="http://84.8.135.135/public/newsline/embed?autoplay=1"
+                        frameBorder="0"
+                        allowTransparency="true"
+                        allow="autoplay"
+                        style={{ width: '100%', minHeight: '150px', height: '150px', border: 0 }}
                         title="Newsline Radio Player"
                       />
                     </div>
