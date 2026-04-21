@@ -16,7 +16,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
 import SubscribeForm from "@/components/SubscribeForm"
-import RadioPlayer from "@/components/RadioPlayer"
 import { getNews } from "@/lib/admin-utils"
 import { buildArticleUrl } from "@/lib/slug-utils"
 
@@ -110,7 +109,14 @@ export default function NewslineRadio() {
                       </div>
                     </div>
                     <div className="flex-1 bg-black/80 rounded overflow-hidden border border-white/20">
-                      <RadioPlayer />
+                      <iframe
+                        src="https://84-8-135-135.sslip.io/public/newsline/embed?autoplay=1"
+                        frameBorder="0"
+                        allowTransparency="true"
+                        allow="autoplay"
+                        style={{ width: '100%', minHeight: '150px', height: '150px', border: 0 }}
+                        title="Newsline Radio Player"
+                      />
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
                       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
