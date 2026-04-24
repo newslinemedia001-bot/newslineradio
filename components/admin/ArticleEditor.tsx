@@ -46,7 +46,18 @@ export default function ArticleEditor({ onSave, initialData, onCancel }: Article
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        // Configure paragraph handling to preserve line breaks
+        paragraph: {
+          HTMLAttributes: {
+            class: 'mb-4',
+          },
+        },
+        // Enable hard breaks for line breaks
+        hardBreak: {
+          keepMarks: true,
+        },
+      }),
       Image.configure({
         HTMLAttributes: {
           class: 'max-w-full h-auto rounded-lg',
@@ -71,6 +82,51 @@ export default function ArticleEditor({ onSave, initialData, onCancel }: Article
     editorProps: {
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none p-4 min-h-[300px] border border-gray-200 rounded-lg',
+      },
+      // Handle paste to preserve formatting and line breaks
+      handlePaste: (view, event) => {
+        const clipboardData = event.clipboardData
+        if (!clipboardData) return false
+
+        // Get both HTML and plain text
+        const html = clipboardData.getData('text/html')
+        const text = clipboardData.getData('text/plain')
+
+        // If HTML is available, let TipTap handle it normally (preserves formatting)
+        if (html) {
+          return false // Let default handler process HTML
+        }
+
+        // For plain text, convert line breaks to proper paragraphs
+        if (text) {
+          event.preventDefault()
+          
+          // Split by line breaks and create paragraphs
+          const lines = text.split(/\r?\n/)
+          const { state, dispatch } = view
+          const { tr } = state
+          
+          // Get current position
+          const { from } = state.selection
+          
+          // Insert content with proper paragraph structure
+          lines.forEach((line, index) => {
+            if (line.trim()) {
+              // Insert text
+              tr.insertText(line, tr.mapping.map(from))
+            }
+            // Add paragraph break between lines (except for the last one)
+            if (index < lines.length - 1) {
+              const pos = tr.mapping.map(from) + line.length
+              tr.split(pos)
+            }
+          })
+          
+          dispatch(tr)
+          return true
+        }
+
+        return false
       },
     },
   })
