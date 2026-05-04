@@ -37,6 +37,7 @@ export default function ArticleEditor({ onSave, initialData, onCancel }: Article
   const [author, setAuthor] = useState(initialData?.author || 'Newsline Team')
   const [featuredImage, setFeaturedImage] = useState(initialData?.imageUrl || '')
   const [uploading, setUploading] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [seoMeta, setSeoMeta] = useState({
     seoTitle: initialData?.seoTitle || '',
     seoDescription: initialData?.seoDescription || '',
@@ -200,37 +201,45 @@ export default function ArticleEditor({ onSave, initialData, onCancel }: Article
     }
   }
 
-  const handleSave = async () => {
+  const handleSave = async (status: 'published' | 'draft' = 'published') => {
+    if (saving) return // Prevent duplicate submissions
+    
     if (!title.trim() || !editor?.getHTML()) {
       alert('Please fill in title and content')
       return
     }
 
-    const baseSlug = generateSlug(title.trim())
-    const slug = initialData?.slug || await ensureUniqueSlug(baseSlug)
-    const publishedAt = initialData?.publishedAt || new Date().toISOString()
+    setSaving(true)
+    try {
+      const baseSlug = generateSlug(title.trim())
+      const slug = initialData?.slug || await ensureUniqueSlug(baseSlug)
+      const publishedAt = initialData?.publishedAt || new Date().toISOString()
 
-    const article = {
-      title: title.trim(),
-      content: editor.getHTML(),
-      excerpt: excerpt.trim() || editor.getText().substring(0, 150) + '...',
-      category: category.trim(),
-      author: author.trim(),
-      imageUrl: featuredImage,
-      publishedAt,
-      updatedAt: new Date().toISOString(),
-      slug,
-      // SEO Meta Data
-      seoTitle: seoMeta.seoTitle || title.trim(),
-      seoDescription: seoMeta.seoDescription,
-      focusKeyword: seoMeta.focusKeyword,
-      // Keep old date fields if editing existing article with dates
-      ...(initialData?.year && { year: initialData.year }),
-      ...(initialData?.month && { month: initialData.month }),
-      ...(initialData?.day && { day: initialData.day }),
+      const article = {
+        title: title.trim(),
+        content: editor.getHTML(),
+        excerpt: excerpt.trim() || editor.getText().substring(0, 150) + '...',
+        category: category.trim(),
+        author: author.trim(),
+        imageUrl: featuredImage,
+        publishedAt,
+        updatedAt: new Date().toISOString(),
+        slug,
+        status, // 'published' or 'draft'
+        // SEO Meta Data
+        seoTitle: seoMeta.seoTitle || title.trim(),
+        seoDescription: seoMeta.seoDescription,
+        focusKeyword: seoMeta.focusKeyword,
+        // Keep old date fields if editing existing article with dates
+        ...(initialData?.year && { year: initialData.year }),
+        ...(initialData?.month && { month: initialData.month }),
+        ...(initialData?.day && { day: initialData.day }),
+      }
+
+      await onSave(article)
+    } finally {
+      setSaving(false)
     }
-
-    onSave(article)
   }
 
   return (
@@ -443,11 +452,31 @@ export default function ArticleEditor({ onSave, initialData, onCancel }: Article
 
           {/* Action Buttons */}
           <div className="flex justify-end space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button type="button" variant="outline" onClick={onCancel} disabled={saving}>
               Cancel
             </Button>
-            <Button type="button" onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
-              {initialData ? 'Update Article' : 'Publish Article'}
+            <Button 
+              type="button" 
+              onClick={(e) => {
+                e.preventDefault()
+                handleSave('draft')
+              }} 
+              variant="outline"
+              className="bg-gray-100 hover:bg-gray-200"
+              disabled={saving}
+            >
+              {saving ? 'Saving...' : 'Save as Draft'}
+            </Button>
+            <Button 
+              type="button" 
+              onClick={(e) => {
+                e.preventDefault()
+                handleSave('published')
+              }} 
+              className="bg-blue-600 hover:bg-blue-700"
+              disabled={saving}
+            >
+              {saving ? 'Publishing...' : (initialData ? 'Update Article' : 'Publish Article')}
             </Button>
           </div>
         </CardContent>
