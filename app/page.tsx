@@ -154,7 +154,7 @@ export default function NewslineRadio() {
       {/* Navigation Bar */}
       <nav className="bg-gradient-to-r from-red-600 to-red-700 shadow-lg sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-center gap-3 py-3 overflow-x-auto">
+          <div className="flex items-center justify-between py-3">
             <Link href="/" className="px-5 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
               HOME
             </Link>
