@@ -112,7 +112,7 @@ export default function NewslineRadio() {
                       <iframe
                         src="https://84-8-135-135.sslip.io/public/newsline/embed?autoplay=1"
                         frameBorder="0"
-                        allowTransparency="true"
+                        allowTransparency={true}
                         allow="autoplay"
                         style={{ width: '100%', minHeight: '150px', height: '150px', border: 0 }}
                         title="Newsline Radio Player"
@@ -154,23 +154,23 @@ export default function NewslineRadio() {
       {/* Navigation Bar */}
       <nav className="bg-gradient-to-r from-red-600 to-red-700 shadow-lg sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-center gap-1 py-3 overflow-x-auto">
-            <Link href="/" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+          <div className="flex items-center justify-center gap-3 py-3 overflow-x-auto">
+            <Link href="/" className="px-5 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
               HOME
             </Link>
-            <Link href="/category/news" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+            <Link href="/category/news" className="px-5 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
               NEWS
             </Link>
-            <Link href="/category/politics" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+            <Link href="/category/politics" className="px-5 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
               POLITICS
             </Link>
-            <Link href="/category/entertainment" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+            <Link href="/category/entertainment" className="px-5 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
               ENTERTAINMENT
             </Link>
-            <Link href="/category/sports" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+            <Link href="/category/sports" className="px-5 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
               SPORTS
             </Link>
-            <Link href="/category/lifestyle" className="px-4 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
+            <Link href="/category/lifestyle" className="px-5 py-2 text-white font-semibold hover:bg-white/20 rounded transition-colors whitespace-nowrap">
               LIFESTYLE
             </Link>
           </div>

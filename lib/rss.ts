@@ -78,6 +78,12 @@ export const DEFAULT_FEEDS = [
         category: 'Politics',
         enabled: true
     },
+    {
+        name: 'Tukio Radio Politics',
+        url: 'https://tukioradio.co.ke/category/politics/feed/',
+        category: 'Politics',
+        enabled: true
+    },
 
     // --- ENTERTAINMENT ---
     {
@@ -95,6 +101,12 @@ export const DEFAULT_FEEDS = [
     {
         name: 'Kiss 100',
         url: 'https://kiss100.co.ke/feed/',
+        category: 'Entertainment',
+        enabled: true
+    },
+    {
+        name: 'Tukio Radio Entertainment',
+        url: 'https://tukioradio.co.ke/category/entertainment/feed/',
         category: 'Entertainment',
         enabled: true
     },
@@ -141,6 +153,12 @@ export const DEFAULT_FEEDS = [
     {
         name: 'Pulse Live Lifestyle',
         url: 'https://www.pulselive.co.ke/lifestyle/rss',
+        category: 'Lifestyle',
+        enabled: true
+    },
+    {
+        name: 'Tukio Radio Lifestyle',
+        url: 'https://tukioradio.co.ke/category/lifestyle/feed/',
         category: 'Lifestyle',
         enabled: true
     },
@@ -324,9 +342,8 @@ export async function importRssFeed(manualCategory: string | null = null) {
 
                         const imageUrl = extractImage(item);
 
-                        // More lenient image check - allow articles without images for certain categories
-                        const allowNoImage = ['Politics', 'News'].includes(feedConfig.category);
-                        if (!imageUrl && !allowNoImage) {
+                        // Require images for all articles
+                        if (!imageUrl) {
                             console.log(`Skipped due to missing image: ${title}`);
                             stats.skipped++;
                             stats.skippedReasons.noImage++;
