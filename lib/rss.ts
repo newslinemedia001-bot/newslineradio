@@ -23,6 +23,12 @@ const parser = new Parser({
 export const DEFAULT_FEEDS = [
     // --- NEWS ---
     {
+        name: 'Tukio Radio',
+        url: 'https://tukioradio.co.ke/feed/',
+        category: 'News',
+        enabled: true
+    },
+    {
         name: 'Tuko News',
         url: 'https://www.tuko.co.ke/rss/',
         category: 'News',
@@ -52,14 +58,14 @@ export const DEFAULT_FEEDS = [
         category: 'News',
         enabled: true
     },
-    {
-        name: 'Tukio Radio',
-        url: 'https://tukioradio.co.ke/feed/',
-        category: 'News',
-        enabled: true
-    },
 
     // --- POLITICS ---
+    {
+        name: 'Tukio Radio Politics',
+        url: 'https://tukioradio.co.ke/category/politics/feed/',
+        category: 'Politics',
+        enabled: true
+    },
     {
         name: 'The Star Politics',
         url: 'https://www.the-star.co.ke/rss/news/politics',
@@ -78,14 +84,20 @@ export const DEFAULT_FEEDS = [
         category: 'Politics',
         enabled: true
     },
-    {
-        name: 'Tukio Radio Politics',
-        url: 'https://tukioradio.co.ke/category/politics/feed/',
-        category: 'Politics',
-        enabled: true
-    },
 
     // --- ENTERTAINMENT ---
+    {
+        name: 'Tukio Radio Entertainment',
+        url: 'https://tukioradio.co.ke/category/entertainment/feed/',
+        category: 'Entertainment',
+        enabled: true
+    },
+    {
+        name: 'Tukio Radio Gossip',
+        url: 'https://tukioradio.co.ke/category/gossip/feed/',
+        category: 'Entertainment',
+        enabled: true
+    },
     {
         name: 'Mpasho',
         url: 'https://mpasho.co.ke/feed/',
@@ -104,14 +116,14 @@ export const DEFAULT_FEEDS = [
         category: 'Entertainment',
         enabled: true
     },
-    {
-        name: 'Tukio Radio Entertainment',
-        url: 'https://tukioradio.co.ke/category/entertainment/feed/',
-        category: 'Entertainment',
-        enabled: true
-    },
 
     // --- SPORTS ---
+    {
+        name: 'Tukio Radio Sports',
+        url: 'https://tukioradio.co.ke/category/sports/feed/',
+        category: 'Sports',
+        enabled: true
+    },
     {
         name: 'Capital FM Sports',
         url: 'https://www.capitalfm.co.ke/sports/feed/',
@@ -130,14 +142,14 @@ export const DEFAULT_FEEDS = [
         category: 'Sports',
         enabled: true
     },
-    {
-        name: 'Tukio Radio Sports',
-        url: 'https://tukioradio.co.ke/category/sports/feed/',
-        category: 'Sports',
-        enabled: true
-    },
 
     // --- LIFESTYLE ---
+    {
+        name: 'Tukio Radio Lifestyle',
+        url: 'https://tukioradio.co.ke/category/lifestyle/feed/',
+        category: 'Lifestyle',
+        enabled: true
+    },
     {
         name: 'Capital FM Lifestyle',
         url: 'https://www.capitalfm.co.ke/lifestyle/feed/',
@@ -156,16 +168,10 @@ export const DEFAULT_FEEDS = [
         category: 'Lifestyle',
         enabled: true
     },
-    {
-        name: 'Tukio Radio Lifestyle',
-        url: 'https://tukioradio.co.ke/category/lifestyle/feed/',
-        category: 'Lifestyle',
-        enabled: true
-    },
 ];
 
 // Helper to extract image from various possible sources
-function extractImage(item: any): string | null {
+function extractImage(item: any, feedName: string = ''): string | null {
     // 1. Check media:content
     if (item.mediaContent?.$?.url) return item.mediaContent.$.url;
     if (item.mediaContent?.url) return item.mediaContent.url;
@@ -187,6 +193,11 @@ function extractImage(item: any): string | null {
     const $ = cheerio.load(content);
     const firstImg = $('img').first().attr('src');
     if (firstImg) return firstImg;
+
+    // 6. Fallback for Tukio Radio - use a default image
+    if (feedName.toLowerCase().includes('tukio')) {
+        return 'https://tukioradio.co.ke/wp-content/uploads/2024/01/tukio-radio-logo.png';
+    }
 
     return null;
 }
@@ -340,7 +351,7 @@ export async function importRssFeed(manualCategory: string | null = null) {
                             continue;
                         }
 
-                        const imageUrl = extractImage(item);
+                        const imageUrl = extractImage(item, feedConfig.name);
 
                         // Require images for all articles
                         if (!imageUrl) {
