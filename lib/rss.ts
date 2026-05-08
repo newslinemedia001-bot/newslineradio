@@ -23,8 +23,8 @@ const parser = new Parser({
 export const DEFAULT_FEEDS = [
     // --- NEWS ---
     {
-        name: 'Tukio Radio',
-        url: 'https://tukioradio.co.ke/feed/',
+        name: 'Tukio',
+        url: 'https://tukio.co.ke/feed/',
         category: 'News',
         enabled: true
     },
@@ -61,8 +61,8 @@ export const DEFAULT_FEEDS = [
 
     // --- POLITICS ---
     {
-        name: 'Tukio Radio Politics',
-        url: 'https://tukioradio.co.ke/category/politics/feed/',
+        name: 'Tukio Politics',
+        url: 'https://tukio.co.ke/category/politics/feed/',
         category: 'Politics',
         enabled: true
     },
@@ -87,14 +87,14 @@ export const DEFAULT_FEEDS = [
 
     // --- ENTERTAINMENT ---
     {
-        name: 'Tukio Radio Entertainment',
-        url: 'https://tukioradio.co.ke/category/entertainment/feed/',
+        name: 'Tukio Entertainment',
+        url: 'https://tukio.co.ke/category/entertainment/feed/',
         category: 'Entertainment',
         enabled: true
     },
     {
-        name: 'Tukio Radio Gossip',
-        url: 'https://tukioradio.co.ke/category/gossip/feed/',
+        name: 'Tukio Gossip',
+        url: 'https://tukio.co.ke/category/gossip/feed/',
         category: 'Entertainment',
         enabled: true
     },
@@ -119,8 +119,8 @@ export const DEFAULT_FEEDS = [
 
     // --- SPORTS ---
     {
-        name: 'Tukio Radio Sports',
-        url: 'https://tukioradio.co.ke/category/sports/feed/',
+        name: 'Tukio Sports',
+        url: 'https://tukio.co.ke/category/sports/feed/',
         category: 'Sports',
         enabled: true
     },
@@ -145,8 +145,8 @@ export const DEFAULT_FEEDS = [
 
     // --- LIFESTYLE ---
     {
-        name: 'Tukio Radio Lifestyle',
-        url: 'https://tukioradio.co.ke/category/lifestyle/feed/',
+        name: 'Tukio Lifestyle',
+        url: 'https://tukio.co.ke/category/lifestyle/feed/',
         category: 'Lifestyle',
         enabled: true
     },
@@ -194,9 +194,9 @@ function extractImage(item: any, feedName: string = ''): string | null {
     const firstImg = $('img').first().attr('src');
     if (firstImg) return firstImg;
 
-    // 6. Fallback for Tukio Radio - use a default image
+    // 6. Fallback for Tukio - use a default image
     if (feedName.toLowerCase().includes('tukio')) {
-        return 'https://tukioradio.co.ke/wp-content/uploads/2024/01/tukio-radio-logo.png';
+        return 'https://tukio.co.ke/wp-content/uploads/2024/01/tukio-logo.png';
     }
 
     return null;
